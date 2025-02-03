@@ -1,0 +1,352 @@
+enum_Encoding:
+  type: enum
+  name: RE2::Options::Encoding
+  values:
+    - EncodingUTF8
+    - EncodingLatin1
+
+
+RE2::Options:
+  name: RE2::Options
+  type: struct
+  headers: ['gfuzz_re2.h']
+  methods:
+# X
+# 0. (규칙 1, L7-10) driver_7_to_10
+  - driver_7_to_10:
+      inputs: []
+      outputs: ['RE2::Options']
+      args: ['bool']
+      exec: |
+          RE2::Options opt;
+          opt.set_log_errors($a0);
+          $o0 = (RE2::Options*)malloc(sizeof(RE2::Options));
+          memcpy($o0, &opt, sizeof(RE2::Options));
+          
+# 1. (규칙 1, L11-12) driver_11_to_12
+  - driver_11_to_12:
+      inputs: ['RE2::Options']
+      outputs: ['RE2::Options']
+      args: ['uint16_t', 'RE2::Options::Encoding']
+      exec: |
+          uint16_t f = $a0;
+          RE2::Options *opt = $i0;
+          
+          if (f & 1) opt->set_encoding($a1);
+          opt->set_posix_syntax(f & 2);
+          
+          $o0 = $i0;
+
+# 2. (규칙 1, L13) driver_13
+  - driver_13:
+      inputs: ['RE2::Options']
+      outputs: ['RE2::Options']
+      args: ['uint16_t']
+      exec: |
+          uint16_t f = $a0;
+          RE2::Options *opt = $i0;
+          
+          opt->set_longest_match(f & 4);
+          
+          $o0 = $i0;
+
+# 3. (규칙 1, L14) driver_14
+  - driver_14:
+      inputs: ['RE2::Options']
+      outputs: ['RE2::Options']
+      args: ['uint16_t']
+      exec: |
+          uint16_t f = $a0;
+          RE2::Options *opt = $i0;
+          
+          opt->set_literal(f & 8);
+          
+          $o0 = $i0;
+
+# 4. (규칙 1, L15) driver_15
+  - driver_15:
+      inputs: ['RE2::Options']
+      outputs: ['RE2::Options']
+      args: ['uint16_t']
+      exec: |
+          uint16_t f = $a0;
+          RE2::Options *opt = $i0;
+          
+          opt->set_never_nl(f & 16);
+          
+          $o0 = $i0;
+
+# 5. (규칙 1, L16) driver_16
+  - driver_16:
+      inputs: ['RE2::Options']
+      outputs: ['RE2::Options']
+      args: ['uint16_t']
+      exec: |
+          uint16_t f = $a0;
+          RE2::Options *opt = $i0;
+          
+          opt->set_dot_nl(f & 32);
+          
+          $o0 = $i0;
+
+# 6. (규칙 1, L17) driver_17
+  - driver_17:
+      inputs: ['RE2::Options']
+      outputs: ['RE2::Options']
+      args: ['uint16_t']
+      exec: |
+          uint16_t f = $a0;
+          RE2::Options *opt = $i0;
+          
+          opt->set_never_capture(f & 64);
+          
+          $o0 = $i0;
+
+# 7. (규칙 1, L18) driver_18
+  - driver_18:
+      inputs: ['RE2::Options']
+      outputs: ['RE2::Options']
+      args: ['uint16_t']
+      exec: |
+          uint16_t f = $a0;
+          RE2::Options *opt = $i0;
+          
+          opt->set_case_sensitive(f & 128);
+          
+          $o0 = $i0;
+          
+# 8. (규칙 1, L19) driver_19
+  - driver_19:
+      inputs: ['RE2::Options']
+      outputs: ['RE2::Options']
+      args: ['uint16_t']
+      exec: |
+          uint16_t f = $a0;
+          RE2::Options *opt = $i0;
+          
+          opt->set_perl_classes(f & 256);
+          
+          $o0 = $i0;
+
+# 9. (규칙 1, L20) driver_20
+  - driver_20:
+      inputs: ['RE2::Options']
+      outputs: ['RE2::Options']
+      args: ['uint16_t']
+      exec: |
+          uint16_t f = $a0;
+          RE2::Options *opt = $i0;
+          
+          opt->set_word_boundary(f & 512);
+          
+          $o0 = $i0;
+
+# 10. (규칙 1, L21) driver_21
+  - driver_21:
+      inputs: ['RE2::Options']
+      outputs: ['RE2::Options']
+      args: ['uint16_t']
+      exec: |
+          uint16_t f = $a0;
+          RE2::Options *opt = $i0;
+          
+          opt->set_one_line(f & 1024);
+          
+          $o0 = $i0;
+          
+# 11
+# 17. (규칙 3, L11) driver_11
+  - driver_11:
+      inputs: ['RE2::Options']
+      outputs: ['RE2::Options']
+      args: ['uint16_t']
+      exec: |
+          uint16_t f = $a0;
+          RE2::Options *opt = $i0;
+          
+          if (f & 1) opt->set_encoding(RE2::Options::EncodingLatin1);
+          
+          $o0 = $i0;
+          
+# 12
+# 18. destructor for RE2::Options
+  - destructor_opt:
+      inputs: ['RE2::Options']
+      outputs: []
+      exec: |
+          free($i0);
+
+# 13
+# 13. (규칙 2, L11, set_encoding) 
+  - set_encoding:
+      inputs: ['RE2::Options', 'Wrapper_data_0']
+      outputs: ['RE2::Options', 'Wrapper_data_0']
+      exec: |
+          /* inputs */
+          RE2::Options *opt = $i0;
+          
+          opt->set_encoding(RE2::Options::EncodingLatin1);
+          $o0 = $i0;
+
+
+RE2:
+  name: RE2
+  type: struct
+  headers: ['gfuzz_re2.h']
+  methods:
+# 14
+# 11. (규칙 1, L22-26) driver_22_to_26
+  - driver_22_to_26:
+      inputs: ['RE2', 'RE2::Options', 'Wrapper_data_0']
+      outputs: ['RE2', 'RE2::Options', 'Wrapper_data_0']
+      exec: |
+          /* inputs */
+          const uint8_t *data = (const uint8_t*)$i2->data;
+          size_t size = $i2->size;
+          uint16_t f = (data[0] << 16) + data[1];
+          
+          /* code */
+          const char *b = reinterpret_cast<const char*>(data) + 2;
+          const char *e = reinterpret_cast<const char*>(data) + size;
+          
+          std::string s1(b, e);
+          RE2 *re;
+          re = new RE2(s1, *($i1));
+          
+          /* outputs */
+          $o0 = re;
+          $o1 = $i1;
+          $o2 = $i2;
+
+# 15
+# 12. (규칙 1, L27-29) driver_27_to_29
+  - driver_27_to_29:
+      inputs: ['RE2', 'Wrapper_data_0']
+      outputs: ['RE2', 'Wrapper_data_0']
+      exec: |
+          /* inputs */
+          RE2 *re = $i0;
+          const uint8_t *data = (const uint8_t*)$i1->data;
+          size_t size = $i1->size;
+          uint16_t f = (data[0] << 16) + data[1];
+          
+          /* code */
+          const char *b = reinterpret_cast<const char*>(data) + 2;
+          const char *e = reinterpret_cast<const char*>(data) + size;
+          
+          std::string s1(b, e);
+          if (re->ok())
+            RE2::FullMatch(s1, *(re));
+          delete re;
+          
+          /* outputs */
+          $o0 = re;
+          $o1 = $i1;
+# 16
+# 14. (규칙 2, L26, RE2)
+  - driver_22_to_26:
+      inputs: ['RE2', 'RE2::Options', 'Wrapper_data_0']
+      outputs: ['RE2', 'RE2::Options', 'Wrapper_data_0']
+      exec: |
+          /* inputs */
+          const uint8_t *data = (const uint8_t*)$i2->data;
+          size_t size = $i2->size;
+          uint16_t f = (data[0] << 16) + data[1];
+          std::string s1 = std::string((const char*)data, size);
+          
+          /* code */
+          RE2 *re;
+          re = new RE2(s1, *($i1));
+          
+          /* outputs */
+          $o0 = re;
+          $o1 = $i1;
+          $o2 = $i2;
+
+# 17
+# 15. (규칙 2, L27, ok) 
+  - ok:
+      inputs: ['RE2']
+      outputs: ['RE2']
+      exec: |
+          /* code */
+          $i0->ok();
+          
+          /* outputs */
+          $o0 = $i0;
+
+# 18
+# 16. (규칙 2, L28, FullMatch) 
+  - FullMatch:
+      inputs: ['RE2', 'Wrapper_data_0']
+      outputs: ['RE2', 'Wrapper_data_0']
+      exec: |
+          /* inputs */
+          std::string s1 = std::string((const char*)$i1->data, $i1->size);
+
+          /* code */
+          RE2::FullMatch(s1, *($i0));
+          
+          /* outputs */
+          $o0 = $i0;
+          $o1 = $i1;
+          
+# 19
+# 18. (규칙 3, L27-28) driver_27_to_28
+  - driver_27_to_28:
+      inputs: ['RE2', 'Wrapper_data_0']
+      outputs: ['RE2', 'Wrapper_data_0']
+      exec: |
+          /* inputs */
+          RE2 *re = $i0;
+          const uint8_t *data = (const uint8_t*)$i1->data;
+          size_t size = $i1->size;
+          uint16_t f = (data[0] << 16) + data[1];
+          
+          /* code */
+          const char *b = reinterpret_cast<const char*>(data) + 2;
+          const char *e = reinterpret_cast<const char*>(data) + size;
+          
+          std::string s1(b, e);
+          if (re->ok())
+            RE2::FullMatch(s1, *(re));
+          
+          /* outputs */
+          $o0 = re;
+          $o1 = $i1;
+
+# 20. Constructor For RE2
+  - constructor_re2:
+      outputs: ['RE2']
+      args: []
+      exec: |
+          $o0 = 0x0;
+          
+# 21. Destructor For RE2
+  - destructor_re2:
+      inputs: ['RE2']
+      args: []
+      exec: |
+          // placeholder
+
+Wrapper_data_0: #wrapper for uint32_t data
+  name: Wrapper_data_0
+  type: struct
+  headers: ['gfuzz_libjpeg-turbo.h']
+  methods:
+  #required: Constructor
+# 22
+  - Wrapper_data_0():
+      outputs: ['Wrapper_data_0']
+      args: ['uint8_t[1048576]', 'uint32_t']
+      exec: |
+          Wrapper_data_0 *wrapper = (Wrapper_data_0*)malloc(sizeof(Wrapper_data_0));
+          memcpy(wrapper->data, $a0, 1048576);
+          wrapper->size = $a1 % (TEST_INPUT_MAX_SIZE+1);
+          $o0 = wrapper;
+          
+# 23
+  - ~Wrapper_data_0():
+      inputs: ['Wrapper_data_0']
+      exec: |
+          free($i0);

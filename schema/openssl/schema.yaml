@@ -1,0 +1,127 @@
+X509:
+  name: X509
+  type: struct
+  headers: ['gfuzz_openssl.h']
+  methods:
+# 0
+# 1. (규칙 1, L30-33) driver_30_to_33
+  - driver_30_to_33:
+      outputs: ['X509']
+      args: ['char[1048576]', 'uint32_t']
+      exec: |
+          const unsigned char *p = (const unsigned char*)$a0;
+          size_t len = $a1 % MAX_BUFFER_SIZE;
+          //unsigned char *der = NULL;
+
+          $o0 = d2i_X509(NULL, &p, len);
+# 1
+# 2. (규칙 1, L34-45) driver_34_to_45
+  - driver_34_to_45:
+      inputs: ['X509']
+      outputs: []
+      exec: |
+          X509 *x509 = $i0;
+          unsigned char *der = NULL;
+
+          if (x509 != NULL) {
+              BIO *bio = BIO_new(BIO_s_null());
+              /* This will load and print the public key as well as extensions */
+              X509_print(bio, x509);
+              BIO_free(bio);
+      
+              i2d_X509(x509, &der);
+              OPENSSL_free(der);
+  
+              X509_free(x509);
+          }
+          ERR_clear_error();
+# 2
+# 3. (규칙 2, L33, d2i_X509) driver_33
+  - driver_33:
+      outputs: ['X509']
+      args: ['char[1048576]', 'uint32_t']
+      exec: |
+          const unsigned char *p = (const unsigned char*)$a0;
+          size_t len = $a1 % MAX_BUFFER_SIZE;
+
+          $o0 = d2i_X509(NULL, &p, len);
+          
+# 3
+# 5. (규칙 2, L37, X509_print) driver_37
+  - X509_print():
+      inputs: ['BIO', 'X509']
+      outputs: ['BIO', 'X509']
+      exec: |
+          X509_print($i0, $i1);
+
+          $o0 = $i0;
+          $o1 = $i1;
+# 4
+# 7. (규칙 2, L40, i2d_X509) driver_40
+  - driver_40:
+      inputs: ['X509']
+      outputs: ['X509']
+      exec: |
+          unsigned char *der = NULL;
+          i2d_X509($i0, &der);
+          OPENSSL_free(der);
+
+          $o0 = $i0;
+
+# X Cannot Implement
+# 8. (규칙 2, L41, OPENSSL_free) driver_41
+
+# 5
+# 9. (규칙 2, L43, X509_free) driver_43
+  - driver_43:
+      inputs: ['X509']
+      exec: |
+          X509_free($i0);
+
+# 6
+# 10. (규칙 2, L45, ERR_clear_error) driver_45
+  - driver_45:
+      inputs: ['X509']
+      outputs: ['X509']
+      exec: |
+          ERR_clear_error();
+          $o0 = $i0;
+
+# 7
+# 11. (규칙 3, L34-44) driver_34_to_44
+  - driver_34_to_44:
+      inputs: ['X509']
+      outputs: []
+      exec: |
+          X509 *x509 = $i0;
+          unsigned char *der = NULL;
+
+          if (x509 != NULL) {
+              BIO *bio = BIO_new(BIO_s_null());
+              /* This will load and print the public key as well as extensions */
+              X509_print(bio, x509);
+              BIO_free(bio);
+      
+              i2d_X509(x509, &der);
+              OPENSSL_free(der);
+  
+              X509_free(x509);
+          }
+
+BIO:
+  name: BIO
+  type: struct
+  headers: ['gfuzz_openssl.h']
+  methods:
+# 8
+# 4. (규칙 2, L35, BIO_new) driver_35
+  - driver_35:
+      outputs: ['BIO']
+      exec: |
+          $o0 = BIO_new(BIO_s_null());
+# 9
+# 6. (규칙 2, L38, BIO_free) driver_38
+  - driver_38:
+      inputs: ['BIO']
+      exec: |
+          BIO_free($i0);

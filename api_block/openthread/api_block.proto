@@ -1,0 +1,62 @@
+syntax = "proto2";
+
+message FUZZING_BYTES {
+  required PRIMTIVE_POOL_INIT_VALUES pool_init_values = 1;
+  repeated APIB_CALL api_block_call_seq = 2;
+}
+
+message APIB_CALL {
+  required uint32 api_block_call_num = 1;
+  required APIB_CALL_INPUT api_block_call_input = 2;
+}
+
+message PRIMTIVE_POOL_INIT_VALUES {
+  repeated OTMESSAGEPRIORITY otmessagepriority = 1;
+  repeated _BOOL _bool = 2;
+  repeated _INT _int = 4;
+  repeated _OTPANID _otpanid = 5;
+  
+  repeated BUF_UINT8_T_P buf_uint8_t_p = 3;
+}
+
+message APIB_CALL_INPUT {
+  required uint32 in_idx_otMessagePriority_0 = 1;
+  required uint32 out_idx_otMessagePriority_0 = 2;
+  required uint32 in_idx_otMessageSettings_0 = 3;
+  required uint32 out_idx_otMessageSettings_0 = 4;
+  required uint32 in_idx_otInstance_p_0 = 5;
+  required uint32 out_idx_otInstance_p_0 = 6;
+  required uint32 in_idx__bool_0 = 7;
+  required uint32 out_idx__bool_0 = 8;
+  required uint32 in_idx_otMessage_p_0 = 9;
+  required uint32 out_idx_otMessage_p_0 = 10;
+  required uint32 in_idx_buf_uint8_t_p_0 = 11;
+  required uint32 in_idx__int_0 = 12;
+  required uint32 out_idx__int_0 = 13;
+  required uint32 in_idx__otPanId_0 = 14;
+  required uint32 out_idx__otPanId_0 = 15;
+  required uint32 in_idx__size_t_0 = 16;
+  required uint32 out_idx__size_t_0 = 17;
+}
+
+enum OTMESSAGEPRIORITY {
+  val_OT_MESSAGE_PRIORITY_LOW = 1; 
+  val_OT_MESSAGE_PRIORITY_NORMAL = 2; 
+  val_OT_MESSAGE_PRIORITY_HIGH = 3; 
+}
+
+message _BOOL {
+  required bool val = 1;
+}
+
+message BUF_UINT8_T_P {
+  required bytes val = 1;
+}
+
+message _INT {
+  required int32 val = 1;
+}
+
+message _OTPANID {
+  required uint32 val = 1;
+}

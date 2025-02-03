@@ -1,0 +1,97 @@
+syntax = "proto2";
+
+message FUZZING_BYTES {
+  required PRIMTIVE_POOL_INIT_VALUES pool_init_values = 1;
+  repeated APIB_CALL api_block_call_seq = 2;
+}
+
+message APIB_CALL {
+  required uint32 api_block_call_num = 1;
+  required APIB_CALL_INPUT api_block_call_input = 2;
+}
+
+message PRIMTIVE_POOL_INIT_VALUES {
+  repeated _UINT32_T _uint32_t = 2;
+  repeated BUF_OPUS_INT16_P buf_opus_int16_p = 3;
+  repeated BUF_UINT8_T_P buf_uint8_t_p = 4;
+  repeated _INT _int = 5;
+  repeated _OPUS_INT32 _opus_int32 = 6;
+  repeated BUF_UNSIGNED_CHAR_P buf_unsigned_char_p = 7;
+  repeated _BOOL _bool = 8;
+}
+
+message APIB_CALL_INPUT {
+  required uint32 in_idx_OpusMSEncoder_p_0 = 1;
+  required uint32 out_idx_OpusMSEncoder_p_0 = 2;
+  required uint32 in_idx__uint32_t_0 = 3;
+  required uint32 in_idx__uint32_t_1 = 4;
+  required uint32 in_idx__uint32_t_2 = 5;
+  required uint32 in_idx__uint32_t_3 = 6;
+  required uint32 in_idx__uint32_t_4 = 7;
+  required uint32 in_idx__uint32_t_5 = 8;
+  required uint32 in_idx__uint32_t_6 = 9;
+  required uint32 in_idx__uint32_t_7 = 10;
+  required uint32 out_idx__uint32_t_0 = 11;
+  required uint32 out_idx__uint32_t_1 = 12;
+  required uint32 out_idx__uint32_t_2 = 13;
+  required uint32 out_idx__uint32_t_3 = 14;
+  required uint32 out_idx__uint32_t_4 = 15;
+  required uint32 out_idx__uint32_t_5 = 16;
+  required uint32 out_idx__uint32_t_6 = 17;
+  required uint32 out_idx__uint32_t_7 = 18;
+  required uint32 in_idx_buf_opus_int16_p_0 = 19;
+  required uint32 out_idx_buf_opus_int16_p_0 = 20;
+  required uint32 in_idx_buf_uint8_t_p_0 = 21;
+  required uint32 in_idx__int_0 = 22;
+  required uint32 in_idx__int_1 = 23;
+  required uint32 in_idx__int_2 = 24;
+  required uint32 in_idx__int_3 = 25;
+  required uint32 in_idx__int_4 = 26;
+  required uint32 in_idx__int_5 = 27;
+  required uint32 out_idx__int_0 = 28;
+  required uint32 out_idx__int_1 = 29;
+  required uint32 out_idx__int_2 = 30;
+  required uint32 out_idx__int_3 = 31;
+  required uint32 out_idx__int_4 = 32;
+  required uint32 out_idx__int_5 = 33;
+  required uint32 in_idx__opus_int32_0 = 34;
+  required uint32 in_idx__opus_int32_1 = 35;
+  required uint32 out_idx__opus_int32_0 = 36;
+  required uint32 out_idx__opus_int32_1 = 37;
+  required uint32 in_idx_buf_unsigned_char_p_0 = 38;
+  required uint32 out_idx_buf_unsigned_char_p_0 = 39;
+  required uint32 in_idx__bool_0 = 40;
+  required uint32 out_idx__bool_0 = 41;
+}
+
+message BUF_OPUSMSENCODER_P {
+  required bytes val = 1;
+}
+
+message _UINT32_T {
+  required uint32 val = 1;
+}
+
+message BUF_OPUS_INT16_P {
+  required bytes val = 1;
+}
+
+message BUF_UINT8_T_P {
+  required bytes val = 1;
+}
+
+message _INT {
+  required int32 val = 1;
+}
+
+message _OPUS_INT32 {
+  required int32 val = 1;
+}
+
+message BUF_UNSIGNED_CHAR_P {
+  required bytes val = 1;
+}
+
+message _BOOL {
+  required bool val = 1;
+}

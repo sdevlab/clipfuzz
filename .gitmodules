@@ -1,0 +1,36 @@
+[submodule "submodule/libprotobuf-mutator"]
+	path = submodule/libprotobuf-mutator
+	url = https://github.com/google/libprotobuf-mutator.git
+[submodule "submodule/llvm-project"]
+	path = submodule/llvm-project
+	url = https://github.com/llvm/llvm-project.git
+[submodule "submodule/GraphFuzz"]
+	path = submodule/GraphFuzz
+	url = https://github.com/hgarrereyn/GraphFuzz.git
+[submodule "submodule/abseil-cpp"]
+	path = submodule/abseil-cpp
+	url = https://github.com/abseil/abseil-cpp.git
+[submodule "submodule/curl"]
+	path = submodule/curl
+	url = https://github.com/curl/curl.git
+[submodule "submodule/curl-fuzzer"]
+	path = submodule/curl-fuzzer
+	url = https://github.com/curl/curl-fuzzer.git
+[submodule "submodule/harfbuzz"]
+	path = submodule/harfbuzz
+	url = https://github.com/harfbuzz/harfbuzz.git
+[submodule "submodule/Little-CMS"]
+	path = submodule/Little-CMS
+	url = https://github.com/mm2/Little-CMS.git
+[submodule "submodule/openssl"]
+	path = submodule/openssl
+	url = https://github.com/openssl/openssl.git
+[submodule "submodule/openthread"]
+	path = submodule/openthread
+	url = https://github.com/openthread/openthread.git
+[submodule "submodule/opus"]
+	path = submodule/opus
+	url = https://github.com/xiph/opus.git
+[submodule "submodule/re2"]
+	path = submodule/re2
+	url = https://github.com/google/re2.git

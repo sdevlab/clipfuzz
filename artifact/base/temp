@@ -1,0 +1,47 @@
+
+OUT=/out
+SRC=/src
+WORK=/work
+
+SHLVL=2
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/out
+
+PYTHON_VERSION=3.8.3
+
+CC=clang
+CXX=clang++
+CCC=clang++
+CFLAGS=-O1 -fno-omit-frame-pointer -gline-tables-only -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=fuzzer-no-link
+CXXFLAGS=-O1 -fno-omit-frame-pointer -gline-tables-only -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION -fsanitize=address -fsanitize-address-use-afte
+
+SANITIZER_FLAGS_thread=-fsanitize=thread
+SANITIZER_FLAGS_coverage=
+COVERAGE_FLAGS_coverage=-fprofile-instr-generate -fcoverage-mapping -pthread -Wl,--no-as-needed -Wl,-ldl -Wl,-lm -Wno-unused-command-line-argument
+FUZZER_LDFLAGS=
+SANITIZER_FLAGS_undefined=-fsanitize=array-bounds,bool,builtin,enum,float-divide-by-zero,function,integer-divide-by-zero,null,object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,unsigned-integer-overflow,unreachable,vla-bound,vptr -fno-sanitize-recover=array-bounds,bool,builtin,enum,float-divide-by-zero,function,integer-divide-by-zero,null,object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound,vptr
+ARCHITECTURE=x86_64r-scope -fsanitize=fuzzer-no-link -stdlib=libc++
+_=/usr/bin/env
+FUZZING_LANGUAGE=cpC++
+FUZZING_ENGINE=libfuzzer
+SANITIZER_FLAGS_introspector=-O0 -flto -fno-inline-functions -fuse-ld=gold -Wno-unused-command-line-argument
+LIB_FUZZING_ENGINE=-fsanitize=fuzzer
+HWASAN_OPTIONS=random_tags=0
+BAZELISK_VERSION=1.9.0
+CMAKE_VERSION=3.24.2
+RUSTFLAGS=--cfg fuzzing -Zsanitizer=address -Cdebuginfo=1 -Cforce-frame-pointers
+FUZZINTRO_OUTDIR=/src
+LIB_FUZZING_ENGINE_DEPRECATED=/usr/lib/libFuzzingEngine.a
+CUSTOM_LIBFUZZER_STD_CXX=c++
+DFSAN_OPTIONS=warn_unimplemented=0
+SANITIZER=address
+TERM=xterm
+SANITIZER_FLAGS=-fsanitize=address -fsanitize-address-use-after-scope
+SANITIZER_FLAGS_memory=-fsanitize=memory -fsanitize-memory-track-origins
+COVERAGE_FLAGS=-fsanitize=fuzzer-no-link
+UBSAN_OPTIONS=silence_unsigned_overflow=1
+CXXFLAGS_EXTRA=-stdlib=libc++
+SANITIZER_FLAGS_hwaddress=-fsanitize=hwaddress -fuse-ld=lld -Wno-unused-command-line-argument
+SANITIZER_FLAGS_address=-fsanitize=address -fsanitize-address-use-after-scope
+DEBIAN_FRONTEND=noninteractive
+CUSTOM_LIBFUZZER_PATH=/usr/lib/libFuzzingEngine.a
+SANITIZER_FLAGS_undefined_aarch64=-fsanitize=array-bounds,bool,builtin,enum,float-divide-by-zero,integer-divide-by-zero,null,object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,unsigned-integer-overflow,unreachable,vla-bound,vptr -fno-sanitize-recover=array-bounds,bool,builtin,enum,float-divide-by-zero,integer-divide-by-zero,null,object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound,vptr

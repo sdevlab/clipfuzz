@@ -1,0 +1,62 @@
+FROM ubuntu:20.04
+ENV TERM xterm-256color
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-get update && \
+    apt-get -y upgrade && \
+    apt-get -y install \
+    clang-12 make cmake git wget curl tar gdb vim clang-tools-12 \
+    python3 python3-pip libprotobuf-dev protobuf-compiler
+
+# Install poetry
+RUN python3 -m pip install poetry
+
+WORKDIR /graphfuzz
+COPY submodule/GraphFuzz/cli /graphfuzz/cli
+COPY submodule/GraphFuzz/core /graphfuzz/core
+COPY submodule/GraphFuzz/CMakeLists.txt /graphfuzz/CMakeLists.txt
+
+# Build and install libgraphfuzz
+RUN cd /graphfuzz && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    make && \
+    make install
+
+# Install gfuzz python tool
+RUN cd /graphfuzz/cli && \
+    poetry build && \
+    poetry export > dist/requirements.txt && \
+    python3 -m pip install -r dist/requirements.txt && \
+    python3 -m pip install ./dist/gfuzz-*.whl
+
+COPY submodule/opus /graphfuzz/opus
+WORKDIR /graphfuzz/opus
+
+RUN apt-get install -y autoconf libtool & \
+    ./autogen.sh
+RUN ./configure --enable-static --disable-shared --disable-doc --enable-assertions && \
+    make -j$(nproc)
+
+RUN mkdir gfuzz
+WORKDIR /graphfuzz/opus/gfuzz
+
+# Coverage
+COPY submodule/opus /graphfuzz/opus_cov
+WORKDIR /graphfuzz/opus_cov
+RUN ./autogen.sh
+RUN CC=clang-12 CXX=clang++-12 CFLAGS="-fprofile-instr-generate -fcoverage-mapping" CXXFLAGS="-fprofile-instr-generate -fcoverage-mapping" ./configure --enable-static --disable-shared --disable-doc --enable-assertions && \
+    CC=clang-12 CXX=clang++-12 CFLAGS="-fprofile-instr-generate -fcoverage-mapping" CXXFLAGS="-fprofile-instr-generate -fcoverage-mapping" make -j$(nproc)
+
+WORKDIR /graphfuzz/opus/gfuzz
+
+COPY artifact/opus/header /graphfuzz/opus/gfuzz/header
+COPY artifact/opus/script /graphfuzz/opus/gfuzz/script
+COPY artifact/opus/src /graphfuzz/opus/gfuzz/src
+COPY artifact/opus/schema.yaml /graphfuzz/opus/gfuzz/schema.yaml
+
+RUN pip install protobuf==3.20.0 && \
+    protoc --python_out=. src/graph.proto
+
+RUN /graphfuzz/opus/gfuzz/script/build.sh

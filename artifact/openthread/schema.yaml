@@ -1,0 +1,199 @@
+enum_otMessagePriority:
+  type: enum
+  name: otMessagePriority
+  values:
+  - OT_MESSAGE_PRIORITY_LOW
+#    - kPriorityNormal
+  - OT_MESSAGE_PRIORITY_HIGH
+
+otInstance:
+  name: otInstance
+  type: struct
+  headers: ['gfuzz_openthread.h']
+  methods:
+  #required: Constructor
+  - otInstanceInitSingle:
+      outputs: ['otInstance']
+      exec: |
+          $o0 = otInstanceInitSingle();
+
+  #required: Destructor
+  - otInstanceFinalize():
+      inputs: ['otInstance']
+      exec: |
+          otInstanceFinalize($i0);
+
+  - otLinkSetPanId():
+      inputs: ['otInstance']
+      outputs: ['otInstance']
+      exec: |
+          const otPanId panId = 0xdead;
+          otLinkSetPanId($i0, panId);
+
+          $o0 = $i0;
+
+  - otIp6SetEnabled():
+      inputs: ['otInstance']
+      outputs: ['otInstance']
+      exec: |
+          otIp6SetEnabled($i0, true);
+
+          $o0 = $i0;
+
+  - otIp6SetEnabled_ext():
+      inputs: ['otInstance']
+      outputs: ['otInstance']
+      exec: |
+          otIp6SetEnabled($i0, false);
+
+          $o0 = $i0;
+
+  - otThreadSetEnabled():
+      inputs: ['otInstance']
+      outputs: ['otInstance']
+      exec: |
+          otThreadSetEnabled($i0, true);
+
+          $o0 = $i0;
+
+  - otThreadSetEnabled():
+      inputs: ['otInstance']
+      outputs: ['otInstance']
+      exec: |
+          otThreadSetEnabled($i0, false);
+
+          $o0 = $i0;
+
+  - otSrpServerSetEnabled():
+      inputs: ['otInstance']
+      outputs: ['otInstance']
+      exec: |
+          otSrpServerSetEnabled($i0, true);
+
+          $o0 = $i0;
+
+  - otSrpServerSetEnabled_ext():
+      inputs: ['otInstance']
+      outputs: ['otInstance']
+      exec: |
+          otSrpServerSetEnabled($i0, false);
+
+          $o0 = $i0;
+
+  - otThreadBecomeLeader():
+      inputs: ['otInstance']
+      outputs: ['otInstance']
+      exec: |
+          otThreadBecomeLeader($i0);
+
+          $o0 = $i0;
+
+  - AdvanceTime_0():
+      inputs: ['otInstance']
+      outputs: ['otInstance']
+      exec: |
+          //AdvanceTime($i0, 10000);
+          AdvanceTime($i0, 10000);
+          $o0 = $i0;
+
+#  - AdvanceTime_0_ext():
+#      inputs: ['otInstance']
+#      outputs: ['otInstance']
+#      args: ['int']
+#      exec: |
+#          AdvanceTime($i0, $a0);
+#          $o0 = $i0;
+
+  - AdvanceTime_1():
+      inputs: ['otInstance']
+      outputs: ['otInstance']
+      exec: |
+          FuzzerPlatformResetWasRequested();
+          AdvanceTime($i0, 10000);
+
+          $o0 = $i0;
+
+  - AdvanceTime_1_ext():
+      inputs: ['otInstance']
+      outputs: ['otInstance']
+      args: ['int']
+      exec: |
+          FuzzerPlatformResetWasRequested();
+          AdvanceTime($i0, $a0);
+
+          $o0 = $i0;
+
+  - otIp6NewMessage():
+      inputs: ['otInstance', 'otMessage']
+      outputs: ['otInstance', 'otMessage']
+      args: ['bool']
+      exec: |
+          if ($i1 == NULL) {
+            otMessageSettings settings;
+            settings.mLinkSecurityEnabled = $a0;
+            settings.mPriority  = OT_MESSAGE_PRIORITY_NORMAL;
+            $o1 = otIp6NewMessage($i0, &settings);
+          }
+          else {
+            $o0 = $i0;
+            $o1 = $i1;
+          }
+
+
+  - otIp6NewMessage_ext():
+      inputs: ['otInstance', 'otMessage']
+      outputs: ['otInstance', 'otMessage']
+      args: ['bool','otMessagePriority']
+      exec: |
+          if ($i1 == NULL) {
+            otMessageSettings settings;
+            settings.mLinkSecurityEnabled = $a0;
+            settings.mPriority  = $a1;
+            $o1 = otIp6NewMessage($i0, &settings);
+          }
+          else {
+            $o0 = $i0;
+            $o1 = $i1;
+          }
+
+otMessage:
+  name: otMessage
+  type: struct
+  headers: ['gfuzz_openthread.h']
+  methods:
+  #required: Constructor
+  - Message():
+      outputs: ['otMessage']
+      exec: |
+          $o0 = NULL;
+
+  #required: otMessage
+  - ~Message():
+      inputs: ['otMessage']
+      exec: |
+          if ($i0 != NULL)
+            otMessageFree($i0);
+
+  - otMessageAppend():
+      inputs: ['otMessage']
+      outputs: ['otMessage']
+      args: ['char[10000]', 'uint32_t']
+      #args: ['char[TEST_INPUT_MAX_SIZE]', 'uint8_t']
+      exec: |
+          uint8_t *data = (uint8_t*)$a0;
+          uint8_t size = $a1 % TEST_INPUT_MAX_SIZE;
+
+          otMessageAppend($i0, data, static_cast<uint16_t>(size));
+
+          $o0 = $i0;
+
+  - otIp6Send():
+      inputs: ['otInstance', 'otMessage']
+      outputs: ['otInstance', 'otMessage']
+      exec: |
+          if ($i1 != NULL) {
+            otIp6Send($i0, $i1);
+          }
+
+          $o0 = $i0;
+          $o1 = $i1;

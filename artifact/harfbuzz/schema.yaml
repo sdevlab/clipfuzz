@@ -1,0 +1,305 @@
+enum_hb_buffer_flags_t:
+  type: enum
+  name: hb_buffer_flags_t
+  values:
+  - HB_BUFFER_FLAG_DEFAULT
+  - HB_BUFFER_FLAG_BOT
+  - HB_BUFFER_FLAG_EOT
+  - HB_BUFFER_FLAG_PRESERVE_DEFAULT_IGNORABLES
+  - HB_BUFFER_FLAG_REMOVE_DEFAULT_IGNORABLES
+  - HB_BUFFER_FLAG_DO_NOT_INSERT_DOTTED_CIRCLE
+  #- HB_BUFFER_FLAG_VERIFY
+  - HB_BUFFER_FLAG_PRODUCE_UNSAFE_TO_CONCAT
+  - HB_BUFFER_FLAG_PRODUCE_SAFE_TO_INSERT_TATWEEL
+  - HB_BUFFER_FLAG_DEFINED
+  
+enum_hb_memory_mode_t:
+  type: enum
+  name: hb_memory_mode_t
+  values:
+  - HB_MEMORY_MODE_DUPLICATE
+  #- HB_MEMORY_MODE_READONLY
+  - HB_MEMORY_MODE_WRITABLE
+  - HB_MEMORY_MODE_READONLY_MAY_MAKE_WRITABLE
+  
+hb_blob_t:
+  name: hb_blob_t
+  type: struct
+  headers: ['gfuzz_harfbuzz.h']
+  methods:
+  # 0
+  #required: Constructor
+  - driver_hb_blob_create():
+      outputs: ['hb_blob_t']
+      args: ['uint32_t','char[1048576]']
+      #args: ['char[MAX_BUFFER_SIZE]']
+      exec: |
+          uint8_t *data = (uint8_t*) $a1;
+          size_t size = $a0 % MAX_BUFFER_SIZE;
+
+          
+          $o0 = hb_blob_create((const char*)data, size,
+            HB_MEMORY_MODE_READONLY, nullptr, nullptr);
+          
+  - driver_hb_blob_create_ext():
+      outputs: ['hb_blob_t']
+      args: ['char[1048576]', 'hb_memory_mode_t']
+      #args: ['char[MAX_BUFFER_SIZE]', 'hb_memory_mode_t']
+      exec: |
+          uint8_t *data = (uint8_t*) $a0;
+          size_t size = MAX_BUFFER_SIZE;
+          
+          $o0 = hb_blob_create((const char*)data, size,
+            $a1, nullptr, nullptr);
+          
+  #required: Destructor
+  # 2
+  - driver_hb_blob_destroy():
+      inputs: ['hb_blob_t']
+      exec: |
+          hb_blob_destroy($i0);
+            
+            
+hb_face_t:
+  name: hb_face_t
+  type: struct
+  headers: ['gfuzz_harfbuzz.h']
+  methods:
+  #required: Constructor
+  # 3
+  - driver_hb_face_t():
+      outputs: ['hb_face_t']
+      exec: |
+          $o0 = 0x0; // placeholder
+          
+  #required: Destructor
+  - ~driver_hb_face_t():
+      inputs: ['hb_face_t']
+      exec: |
+          // placeholder
+          
+  - driver_hb_face_create():
+      inputs: ['hb_blob_t', 'hb_face_t']
+      outputs: ['hb_blob_t','hb_face_t']
+      exec: |
+          if ($i1 == NULL)
+            $o1 = hb_face_create($i0, 0);
+          else
+            $o1 = $i1;
+          $o0 = $i0;
+          
+  - driver_hb_face_create_ext():
+      inputs: ['hb_blob_t', 'hb_face_t']
+      outputs: ['hb_blob_t','hb_face_t']
+      args: ['int']
+      exec: |
+          if ($i1 == NULL)
+            $o1 = hb_face_create($i0, $a0);
+          else
+            $o1 = $i1;
+          $o0 = $i0;
+            
+  - driver_hb_face_destroy():
+      inputs: ['hb_face_t']
+      outputs: ['hb_face_t']
+      exec: |
+          if ($i0 != NULL)
+            hb_face_destroy($i0);
+          $o0 = $i0;
+            
+hb_font_t:
+  name: hb_font_t
+  type: struct
+  headers: ['gfuzz_harfbuzz.h']
+  methods:
+  #required: Constructor
+  # 8
+  - driver_hb_font_t():
+      outputs: ['hb_font_t']
+      exec: |
+          $o0 = 0x0; // placeholder
+          
+  - driver_hb_font_create():
+      inputs: ['hb_face_t','hb_font_t']
+      outputs: ['hb_face_t','hb_font_t']
+      exec: |
+          if ($i0 != NULL && $i1 == NULL)
+            $o1 = hb_font_create($i0);
+          else
+            $o1 = $i1;
+          $o0 = $i0;
+
+  - driver_hb_ot_font_set_funcs():
+      inputs: ['hb_font_t']
+      outputs: ['hb_font_t']
+      exec: |
+          if ($i0 != NULL)
+            hb_ot_font_set_funcs($i0);
+          $o0 = $i0;
+                
+  - driver_hb_font_set_scale():
+      inputs: ['hb_font_t']
+      outputs: ['hb_font_t']
+      exec: |
+          if ($i0 != NULL)
+            hb_font_set_scale($i0, 12, 12);
+          $o0 = $i0;
+          
+  - driver_hb_font_set_scale_ext():
+      inputs: ['hb_font_t']
+      outputs: ['hb_font_t']
+      args: ['int','int']
+      exec: |
+          if ($i0 != NULL)
+            hb_font_set_scale($i0, $a0, $a1);
+          $o0 = $i0;
+  # 13
+  - driver_line_23_to_31():
+      inputs: ['hb_font_t', 'hb_face_t']
+      outputs: ['hb_font_t', 'hb_face_t']
+      args: ['uint8_t', 'uint8_t[255]', 'uint32_t']
+      exec: |
+          if ($i0 != NULL && $i1 != NULL) {
+             hb_font_t *font = $i0;
+             hb_face_t *face = $i1;
+
+             size_t size = $a2;
+
+             unsigned num_coords = 0;
+             if (size) num_coords = $a0;
+             if (hb_ot_var_get_axis_count (face) > num_coords)
+               num_coords = (unsigned)num_coords;
+             else
+               num_coords = hb_ot_var_get_axis_count (face);
+             int *coords = (int *) calloc (num_coords, sizeof (int));
+             if (size > num_coords + 1)
+               for (unsigned i = 0; i < num_coords; ++i) {
+                 coords[i] = ((int)$a1[i] - 128) * 10;
+               }
+             hb_font_set_var_coords_normalized (font, coords, num_coords);
+             free (coords);
+          }
+          $o0 = $i0; 
+          $o1 = $i1; 
+
+  - driver_hb_font_destroy():
+      inputs: ['hb_font_t']
+      exec: |
+          if ($i0 !=NULL )
+            hb_font_destroy($i0);
+              
+hb_buffer_t:
+  name: hb_buffer_t
+  type: struct
+  headers: ['gfuzz_harfbuzz.h']
+  methods:
+  #required: Constructor
+  # 15
+  - driver_hb_buffer_create():
+      outputs: ['hb_buffer_t']
+      exec: |
+          $o0 = hb_buffer_create ();
+
+  #required: Destructor
+  - driver_hb_buffer_destroy():
+      inputs: ['hb_buffer_t']
+      exec: |
+          hb_buffer_destroy ($i0);
+          
+  - driver_hb_buffer_set_flags():
+      inputs: ['hb_buffer_t']
+      outputs: ['hb_buffer_t']
+      exec: |
+          hb_buffer_set_flags($i0, (hb_buffer_flags_t) (HB_BUFFER_FLAG_VERIFY /* | HB_BUFFER_FLAG_PRODUCE_UNSAFE_TO_CONCAT */));
+          $o0 = $i0;
+         
+  - driver_hb_buffer_set_flags_ext():
+      inputs: ['hb_buffer_t']
+      outputs: ['hb_buffer_t']
+      args: ['hb_buffer_flags_t']
+      exec: |
+          hb_buffer_set_flags($i0, $a0);
+          $o0 = $i0;
+           
+  - driver_hb_buffer_add_utf8():
+      inputs: ['hb_buffer_t']
+      outputs: ['hb_buffer_t']
+      exec: |
+          const char text[] = "ABCDEXYZ123@_%&)*$!";
+          hb_buffer_add_utf8($i0, text, -1, 0, -1);
+          $o0 = $i0; 
+  # 20
+  - driver_hb_buffer_add_utf8_ext():
+      inputs: ['hb_buffer_t']
+      outputs: ['hb_buffer_t']
+      args: ['char[19]', 'int', 'int', 'int']
+      exec: |
+          hb_buffer_add_utf8($i0, $a0, $a1, $a2, $a3);
+            
+  - driver_hb_buffer_guess_segment_properties():
+      inputs: ['hb_buffer_t']
+      outputs: ['hb_buffer_t']
+      exec: |
+          hb_buffer_guess_segment_properties($i0);
+          $o0 = $i0; 
+          
+  - driver_hb_shape():
+      inputs: ['hb_font_t','hb_buffer_t']
+      outputs: ['hb_font_t','hb_buffer_t']
+      exec: |
+          if ($i0 != NULL)
+            hb_shape($i0, $i1, nullptr, 0);
+          $o0 = $i0; 
+          $o1 = $i1; 
+          
+  - driver_hb_shape_ext():
+      inputs: ['hb_font_t','hb_buffer_t']
+      outputs: ['hb_font_t','hb_buffer_t']
+      args: ['int']
+      exec: |
+          if ($i0 != NULL)
+            hb_shape($i0, $i1, nullptr, $a0);
+          $o0 = $i0; 
+          $o1 = $i1; 
+            
+  - driver_hb_buffer_add_utf32():
+      inputs: ['hb_buffer_t', 'hb_font_t']
+      outputs: ['hb_buffer_t', 'hb_font_t']
+      args: ['uint32_t[16]']
+      exec: |
+          if ($i1 == NULL) return;
+
+          uint32_t text32[16] = {0};
+          memcpy(text32, $a0, 16*sizeof(uint32_t));
+          /*
+          uint32_t len = sizeof (text32);
+          if (size < len)
+            len = size;
+          if (len)
+            memcpy (text32, data + size - len, len);
+          */
+
+          /* Misc calls on font. */
+          text32[10] = test_font ($i1, text32[15]) % 256;
+          
+          hb_buffer_add_utf32($i0, text32, sizeof (text32) / sizeof (text32[0]), 0, -1);
+      
+          $o0 = $i0; 
+          $o1 = $i1; 
+          
+  # 25
+  - driver_hb_buffer_add_utf32_ext():
+      inputs: ['hb_buffer_t', 'hb_font_t']
+      outputs: ['hb_buffer_t', 'hb_font_t']
+      args: ['uint32_t[16]', 'int', 'int']
+      exec: |
+          if ($i1 == NULL) return;
+
+          uint32_t *text32 = (uint32_t*)$a0;
+          
+          text32[10] = test_font ($i1, text32[15]) % 256;
+          
+          hb_buffer_add_utf32($i0, text32, sizeof (text32) / sizeof (text32[0]), $a1, $a2);
+      
+          $o0 = $i0; 
+          $o1 = $i1; 

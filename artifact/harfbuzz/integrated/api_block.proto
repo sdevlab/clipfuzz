@@ -1,0 +1,113 @@
+syntax = "proto2";
+
+message FUZZER_BYTES {
+  required BANK_PRIM_INIT_VALUES bank_init_values = 1;
+  repeated APIB_CALL api_block_call_seq = 2;
+}
+
+message APIB_CALL {
+  required uint32 api_block_call_num = 1;
+  required APIB_CALL_INPUT api_block_call_input = 2;
+}
+
+message BANK_PRIM_INIT_VALUES {
+  repeated INT _int = 1;
+  repeated BUF_CONST_CHAR_P buf_const_char_p = 2;
+  repeated BUF_CONST_UINT8_T_P buf_const_uint8_t_p = 3;
+  repeated BUF_INT_P buf_int_p = 4;
+  repeated BUF_UINT32_T_P buf_uint32_t_p = 5;
+  repeated HB_BUFFER_FLAGS_T hb_buffer_flags_t = 6;
+  repeated HB_MEMORY_MODE_T hb_memory_mode_t = 7;
+  //repeated SIZE size = 8;
+  repeated UNSIGNED _unsigned = 9;
+}
+
+message APIB_CALL_INPUT {
+  required uint32 in_idx_hb_blob_t_p_0 = 1;
+  required uint32 in_idx_hb_buffer_flags_t_0 = 2;
+  required uint32 in_idx_hb_buffer_t_p_0 = 3;
+  required uint32 in_idx_hb_face_t_p_0 = 4;
+  required uint32 in_idx_hb_font_t_p_0 = 5;
+  required uint32 in_idx_hb_memory_mode_t_0 = 6;
+  required uint32 in_idx_int_0 = 7;
+  required uint32 in_idx_int_1 = 8;
+  required uint32 in_idx_int_2 = 9;
+  required uint32 in_idx_int_3 = 10;
+  required uint32 in_idx_size_0 = 11;
+  required uint32 in_idx_unsigned_0 = 12;
+
+  required uint32 in_idx_buf_const_char_p_0 = 13;
+  required uint32 in_idx_buf_const_uint8_t_p_0 = 14;
+  required uint32 in_idx_buf_int_p_0 = 15;
+  required uint32 in_idx_buf_uint32_t_p_0 = 16;
+
+  required uint32 out_idx_hb_blob_t_p_0 = 17;
+  required uint32 out_idx_hb_buffer_flags_t_0 = 18;
+  required uint32 out_idx_hb_buffer_t_p_0 = 19;
+  required uint32 out_idx_hb_face_t_p_0 = 20;
+  required uint32 out_idx_hb_font_t_p_0 = 21;
+  required uint32 out_idx_hb_memory_mode_t_0 = 22;
+  required uint32 out_idx_int_0 = 23;
+  required uint32 out_idx_int_1 = 24;
+  required uint32 out_idx_int_2 = 25;
+  required uint32 out_idx_int_3 = 26;
+  required uint32 out_idx_size_0 = 27;
+  required uint32 out_idx_unsigned_0 = 28;
+
+  required uint32 out_idx_buf_const_char_p_0 = 29;
+  required uint32 out_idx_buf_const_uint8_t_p_0 = 30;
+  required uint32 out_idx_buf_int_p_0 = 31;
+  required uint32 out_idx_buf_uint32_t_p_0 = 32;
+}
+
+
+message INT {
+  required int32 val = 1;
+}
+
+message BUF_CONST_CHAR_P {
+  required bytes val = 1;
+}
+
+message BUF_CONST_UINT8_T_P {
+  required bytes val = 1;
+}
+
+message BUF_INT_P {
+  required bytes val = 1;
+}
+
+message BUF_UINT32_T_P {
+  required bytes val = 1;
+}
+message SIZE {
+  required uint32 val = 1;
+}
+
+message UNSIGNED {
+  required uint32 val = 1;
+}
+
+//ENUM
+
+
+
+enum HB_BUFFER_FLAGS_T {
+  val_HB_BUFFER_FLAG_DEFAULT = 1;
+  val_HB_BUFFER_FLAG_BOT = 2;
+  val_HB_BUFFER_FLAG_EOT = 3;
+  val_HB_BUFFER_FLAG_PRESERVE_DEFAULT_IGNORABLES = 4;
+  val_HB_BUFFER_FLAG_REMOVE_DEFAULT_IGNORABLES = 5;
+  val_HB_BUFFER_FLAG_DO_NOT_INSERT_DOTTED_CIRCLE = 6;
+  val_HB_BUFFER_FLAG_VERIFY = 7;
+  val_HB_BUFFER_FLAG_PRODUCE_UNSAFE_TO_CONCAT = 8;
+  val_HB_BUFFER_FLAG_PRODUCE_SAFE_TO_INSERT_TATWEEL = 9;
+  val_HB_BUFFER_FLAG_DEFINED = 10;
+}
+
+enum HB_MEMORY_MODE_T {
+  val_HB_MEMORY_MODE_DUPLICATE = 1;
+  val_HB_MEMORY_MODE_READONLY = 2;  
+  val_HB_MEMORY_MODE_WRITABLE = 3;  
+  val_HB_MEMORY_MODE_READONLY_MAY_MAKE_WRITABLE = 4;  
+}

@@ -1,0 +1,115 @@
+syntax = "proto2";
+
+message FUZZING_BYTES {
+  required PRIMTIVE_POOL_INIT_VALUES pool_init_values = 1;
+  repeated APIB_CALL api_block_call_seq = 2;
+}
+
+message APIB_CALL {
+  required uint32 api_block_call_num = 1;
+  required APIB_CALL_INPUT api_block_call_input = 2;
+}
+
+message PRIMTIVE_POOL_INIT_VALUES {
+  repeated BUF_UINT8_T_P buf_uint8_t_p = 1;
+  repeated CMSCOLORSPACESIGNATURE cmscolorspacesignature = 2;
+  repeated BUF_DOUBLE_P buf_double_p = 3;
+  repeated _INT _int = 4;
+  repeated _CMSUINT32NUMBER _cmsuint32number = 5;
+}
+
+message APIB_CALL_INPUT {
+  required uint32 in_idx_buf_uint8_t_p_0 = 1;
+  required uint32 in_idx_buf_uint8_t_p_1 = 2;
+  required uint32 in_idx_buf_uint8_t_p_2 = 3;
+  required uint32 out_idx_buf_uint8_t_p_0 = 4;
+  required uint32 out_idx_buf_uint8_t_p_1 = 5;
+  required uint32 in_idx_cmsHPROFILE_0 = 6;
+  required uint32 in_idx_cmsHPROFILE_1 = 7;
+  required uint32 out_idx_cmsHPROFILE_0 = 8;
+  required uint32 out_idx_cmsHPROFILE_1 = 9;
+  required uint32 in_idx_cmsColorSpaceSignature_0 = 10;
+  required uint32 out_idx_cmsColorSpaceSignature_0 = 11;
+  required uint32 in_idx__size_t_0 = 12;
+  required uint32 out_idx__size_t_0 = 13;
+  required uint32 in_idx_cmsHTRANSFORM_0 = 14;
+  required uint32 out_idx_cmsHTRANSFORM_0 = 15;
+  required uint32 in_idx_buf_double_p_0 = 16;
+  required uint32 out_idx_buf_double_p_0 = 17;
+  required uint32 in_idx__int_0 = 18;
+  required uint32 in_idx__int_1 = 19;
+  required uint32 in_idx__int_2 = 20;
+  required uint32 in_idx__int_3 = 21;
+  required uint32 out_idx__int_0 = 22;
+  required uint32 out_idx__int_1 = 23;
+  required uint32 out_idx__int_2 = 24;
+  required uint32 out_idx__int_3 = 25;
+  required uint32 in_idx__cmsUInt32Number_0 = 26;
+  required uint32 in_idx__cmsUInt32Number_1 = 27;
+  required uint32 out_idx__cmsUInt32Number_0 = 28;
+  required uint32 out_idx__cmsUInt32Number_1 = 29;
+  required uint32 out_idx__cmsUInt32Number_2 = 30;
+  required uint32 out_idx__cmsUInt32Number_3 = 31;
+}
+
+message BUF_UINT8_T_P {
+  required bytes val = 1;
+}
+
+enum CMSCOLORSPACESIGNATURE {
+  val_cmsSigXYZData = 1; 
+  val_cmsSigLabData = 2; 
+  val_cmsSigLuvData = 3; 
+  val_cmsSigYCbCrData = 4; 
+  val_cmsSigYxyData = 5; 
+  val_cmsSigRgbData = 6; 
+  val_cmsSigGrayData = 7; 
+  val_cmsSigHsvData = 8; 
+  val_cmsSigHlsData = 9; 
+  val_cmsSigCmykData = 10; 
+  val_cmsSigCmyData = 11; 
+  val_cmsSigMCH1Data = 12; 
+  val_cmsSigMCH2Data = 13; 
+  val_cmsSigMCH3Data = 14; 
+  val_cmsSigMCH4Data = 15; 
+  val_cmsSigMCH5Data = 16; 
+  val_cmsSigMCH6Data = 17; 
+  val_cmsSigMCH7Data = 18; 
+  val_cmsSigMCH8Data = 19; 
+  val_cmsSigMCH9Data = 20; 
+  val_cmsSigMCHAData = 21; 
+  val_cmsSigMCHBData = 22; 
+  val_cmsSigMCHCData = 23; 
+  val_cmsSigMCHDData = 24; 
+  val_cmsSigMCHEData = 25; 
+  val_cmsSigMCHFData = 26; 
+  val_cmsSigNamedData = 27; 
+  val_cmsSig1colorData = 28; 
+  val_cmsSig2colorData = 29; 
+  val_cmsSig3colorData = 30; 
+  val_cmsSig4colorData = 31; 
+  val_cmsSig5colorData = 32; 
+  val_cmsSig6colorData = 33; 
+  val_cmsSig7colorData = 34; 
+  val_cmsSig8colorData = 35; 
+  val_cmsSig9colorData = 36; 
+  val_cmsSig10colorData = 37; 
+  val_cmsSig11colorData = 38; 
+  val_cmsSig12colorData = 39; 
+  val_cmsSig13colorData = 40; 
+  val_cmsSig14colorData = 41; 
+  val_cmsSig15colorData = 42; 
+  val_cmsSigLuvKData = 43; 
+}
+
+message BUF_DOUBLE_P {
+  required bytes val = 1;
+}
+
+message _INT {
+  required int32 val = 1;
+}
+
+message _CMSUINT32NUMBER {
+  required uint32 val = 1;
+}

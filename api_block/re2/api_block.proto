@@ -1,0 +1,58 @@
+syntax = "proto2";
+
+message FUZZING_BYTES {
+  required PRIMTIVE_POOL_INIT_VALUES pool_init_values = 1;
+  repeated APIB_CALL api_block_call_seq = 2;
+}
+
+message APIB_CALL {
+  required uint32 api_block_call_num = 1;
+  required APIB_CALL_INPUT api_block_call_input = 2;
+}
+
+message PRIMTIVE_POOL_INIT_VALUES {
+  repeated _BOOL _bool = 1;
+  repeated _UINT16_T _uint16_t = 2;
+  repeated RE2__OPTIONS__ENCODING re2__options__encoding = 3;
+  repeated BUF_UINT8_T_P buf_uint8_t_p = 4;
+  repeated BUF_STD__STRING buf_std__string = 5;
+}
+
+message APIB_CALL_INPUT {
+  required uint32 in_idx_RE2_p_0 = 1;
+  required uint32 out_idx_RE2_p_0 = 2;
+  required uint32 in_idx__bool_0 = 3;
+  required uint32 out_idx__bool_0 = 4;
+  required uint32 in_idx_RE2__Options_0 = 5;
+  required uint32 out_idx_RE2__Options_0 = 6;
+  required uint32 in_idx__uint16_t_0 = 7;
+  required uint32 out_idx__uint16_t_0 = 8;
+  required uint32 in_idx_RE2__Options__Encoding_0 = 9;
+  required uint32 out_idx_RE2__Options__Encoding_0 = 10;
+  required uint32 in_idx__size_t_0 = 11;
+  required uint32 out_idx__size_t_0 = 12;
+  required uint32 in_idx_buf_uint8_t_p_0 = 13;
+  required uint32 in_idx_buf_std__string_0 = 14;
+  required uint32 out_idx_buf_std__string_0 = 15;
+}
+
+message _BOOL {
+  required bool val = 1;
+}
+
+message _UINT16_T {
+  required uint32 val = 1;
+}
+
+enum RE2__OPTIONS__ENCODING {
+  val_RE2__Options__EncodingUTF8 = 1;
+  val_RE2__Options__EncodingLatin1 = 2;
+}
+
+message BUF_UINT8_T_P {
+  required bytes val = 1;
+}
+
+message BUF_STD__STRING {
+  required bytes val = 1;
+}

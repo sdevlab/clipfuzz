@@ -1,0 +1,505 @@
+simple_uint8_t:
+  type: simple
+  name: 'uint8_t'
+  context_size: 1
+
+simple_unsigned_char:
+  type: simple
+  name: 'unsigned char'
+  context_size: 1
+
+OpusMSEncoder:
+  name: OpusMSEncoder
+  type: struct
+  headers: ['gfuzz_opus.h']
+  methods:
+  # 0
+  - constructor_OpusMSEncoder:
+      inputs: []
+      outputs: ['OpusMSEncoder']
+      exec: |
+              $o0 = 0x0;
+
+# 1. (규칙 1, L31-71) driver_31_to_71
+  - driver_31_to_71:
+      inputs: ['OpusMSEncoder', 'Wrapper_int', 'Wrapper_int', 'Wrapper_data_1']
+      outputs: ['OpusMSEncoder', 'Wrapper_int', 'Wrapper_int', 'Wrapper_data_1']
+      args: ['uint8_t', 'uint8_t', 'uint8_t', 'uint8_t', 'uint8_t', 'uint8_t', 'bool', 'uint8_t', 'uint8_t']
+      exec: |
+              if ( $i0 != 0x0 ) {
+                $o0 = $i0;
+                out_ref[0] = reinterpret_cast<void *>(_o0);
+                $o1 = $i1;
+                out_ref[1] = reinterpret_cast<void *>(_o1);
+                $o2 = $i2;
+                out_ref[2] = reinterpret_cast<void *>(_o2);
+                $o3 = $i3;
+                out_ref[3] = reinterpret_cast<void *>(_o3);
+                return;
+              }
+              const opus_int32 frequency_arr[5] = {8, 12, 16, 24, 48};
+              int frame_size_ms_x2_arr[9] = {5, 10, 20, 40, 80, 120, 160, 200, 240};
+              int application_arr[3] = {OPUS_APPLICATION_AUDIO, OPUS_APPLICATION_VOIP,
+                                        OPUS_APPLICATION_RESTRICTED_LOWDELAY};
+
+              opus_int32 nb_channels = $a0 ;
+              const opus_int32 frequency = frequency_arr[$a1 % 5] * 1000;
+              int streams = $a2;
+              int coupled_streams = $a3;
+              int frame_size_ms_x2 = frame_size_ms_x2_arr[$a4 % 9];
+              int frame_size = frame_size_ms_x2 * frequency / 2000;
+              int application = application_arr[$a5 % 3];
+
+              unsigned char *mapping = (unsigned char *)malloc(nb_channels);
+              if (!mapping) {
+                $o0 = $i0;
+                out_ref[0] = reinterpret_cast<void *>(_o0);
+                $o1 = $i1;
+                out_ref[1] = reinterpret_cast<void *>(_o1);
+                $o2 = $i2;
+                out_ref[2] = reinterpret_cast<void *>(_o2);
+                $o3 = $i3;
+                out_ref[3] = reinterpret_cast<void *>(_o3);
+                return;
+              }
+              for (unsigned char x = 0; x < nb_channels; ++x) {
+                mapping[x] = $i3->data[x];
+              }
+
+              int err = OPUS_OK;
+              OpusMSEncoder *enc = NULL;
+              if ($a6) {
+                //int mapping_family = fdp.PickValueInArray({0, 1, 2, 3, 255});
+                int mapping_family_arr[5] = {0, 1, 2, 3, 255};
+                int mapping_family = mapping_family_arr[$a7 % 5];
+
+                enc = opus_multistream_surround_encoder_create(
+                    frequency, nb_channels, mapping_family, &streams, &coupled_streams,
+                    mapping, application, &err);
+              } else {
+                enc = opus_multistream_encoder_create(frequency, nb_channels, streams,
+                                                      coupled_streams, mapping, application,
+                                                      &err);
+              }
+              free(mapping);
+              if (err != OPUS_OK || enc == NULL) {
+                opus_multistream_encoder_destroy(enc);
+                $o0 = $i0;
+                out_ref[0] = reinterpret_cast<void *>(_o0);
+                $o1 = $i1;
+                out_ref[1] = reinterpret_cast<void *>(_o1);
+                $o2 = $i2;
+                out_ref[2] = reinterpret_cast<void *>(_o2);
+                $o3 = $i3;
+                out_ref[3] = reinterpret_cast<void *>(_o3);
+                return;
+              }
+
+              opus_multistream_encoder_ctl(
+                  enc, OPUS_SET_COMPLEXITY($a8));
+              
+              $i0 = enc;
+              $i1->val = nb_channels;
+              $i2->val = frame_size;
+              $o0 = $i0;
+              $o1 = $i1;
+              $o2 = $i2;
+              $o3 = $i3;
+              
+              
+# 2. (규칙 1, L72) driver_72
+  - driver_72:
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: ['bool']
+      exec: |
+              opus_multistream_encoder_ctl($i0, OPUS_SET_VBR($a0));
+
+              $o0 = $i0;
+
+# 3. (규칙 1, L73) driver_73
+  - driver_73:
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: ['bool']
+      exec: |
+              opus_multistream_encoder_ctl($i0, OPUS_SET_VBR_CONSTRAINT($a0));
+
+              $o0 = $i0;
+
+# 4. (규칙 1, L74-75)  driver_74_to_75
+  - driver_74_to_75:
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: ['uint8_t']
+      exec: |
+              int OPUS_SET_FORCE_CHANNELS_arr[3] = {OPUS_AUTO, 1, 2};
+              opus_multistream_encoder_ctl(
+                  $i0, OPUS_SET_FORCE_CHANNELS(OPUS_SET_FORCE_CHANNELS_arr[$a0 % 3]));
+
+              $o0 = $i0;
+
+# 5. (규칙 1, L76-80) driver_76_to_80
+  - driver_76_to_80:
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: ['uint8_t']
+      exec: |
+              int OPUS_SET_MAX_BANDWIDTH_arr[5] = {OPUS_BANDWIDTH_NARROWBAND, OPUS_BANDWIDTH_MEDIUMBAND,
+                            OPUS_BANDWIDTH_WIDEBAND, OPUS_BANDWIDTH_SUPERWIDEBAND,
+                            OPUS_BANDWIDTH_FULLBAND};
+              opus_multistream_encoder_ctl(
+                  $i0, OPUS_SET_MAX_BANDWIDTH(OPUS_SET_MAX_BANDWIDTH_arr[$a0 % 5]));
+
+              $o0 = $i0;
+
+
+# 6. (규칙 1, L81) driver_81
+  - driver_81:
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: ['bool']
+      exec: |
+              opus_multistream_encoder_ctl($i0, OPUS_SET_INBAND_FEC($a0));
+
+              $o0 = $i0;
+
+# 7. (규칙 1, L82-83)  driver_82_to_83
+  - driver_82_to_83:
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: ['uint8_t']
+      exec: |
+              opus_multistream_encoder_ctl(
+                  $i0, OPUS_SET_PACKET_LOSS_PERC($a0 % 100));
+
+              $o0 = $i0;
+
+# 8. (규칙 1, L84) driver_84
+  - driver_84:
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: ['bool']
+      exec: |
+              opus_multistream_encoder_ctl($i0, OPUS_SET_DTX($a0));
+
+              $o0 = $i0;
+
+# 9. (규칙 1, L85-86) driver_85_to_86
+  - driver_85_to_86:
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: ['uint8_t']
+      exec: |
+              opus_multistream_encoder_ctl(
+                  $i0, OPUS_SET_LSB_DEPTH(($a0 % 16) + 8));
+
+              $o0 = $i0;
+
+# 10. (규칙 1, L87-88) driver_87_to_88
+  - driver_87_to_88:
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: ['bool']
+      exec: |
+              opus_multistream_encoder_ctl(
+                  $i0, OPUS_SET_PREDICTION_DISABLED(($a0)));
+
+              $o0 = $i0;
+
+# 11. (규칙 1, L89-91) driver_89_to_91
+  - driver_89_to_91:
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: ['uint8_t']
+      exec: |
+              int OPUS_SET_SIGNAL_arr[3] = {OPUS_AUTO, OPUS_SIGNAL_VOICE, OPUS_SIGNAL_MUSIC};
+              opus_multistream_encoder_ctl(
+                  $i0, OPUS_SET_SIGNAL(OPUS_SET_SIGNAL_arr[$a0 % 3]));
+
+              $o0 = $i0;
+
+
+# 12. (규칙 1, L92-93) driver_92_to_93
+  - driver_92_to_93:
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: ['bool']
+      exec: |
+              opus_multistream_encoder_ctl(
+                  $i0, OPUS_SET_PHASE_INVERSION_DISABLED((($a0))));
+
+              $o0 = $i0;
+
+# 13. (규칙 1, L95-109) driver_95_to_109
+  - driver_95_to_109:
+      inputs: ['OpusMSEncoder', 'Wrapper_int', 'Wrapper_int', 'Wrapper_data_0']
+      outputs: ['OpusMSEncoder', 'Wrapper_int', 'Wrapper_int', 'Wrapper_data_0']
+      exec: |
+              OpusMSEncoder *enc = $i0;
+              opus_int32 nb_channels = $i1->val;
+              int frame_size = $i2->val;
+              static unsigned char out[MAX_PACKET];
+              
+              const int pcm_size = sizeof(opus_int16) * frame_size * nb_channels;
+              opus_int16 *pcm = (opus_int16 *)opus_alloc(pcm_size);
+
+              if (pcm == NULL) {
+                $o0 = $i0;
+                out_ref[0] = reinterpret_cast<void *>(_o0);
+                $o1 = $i1;
+                out_ref[1] = reinterpret_cast<void *>(_o1);
+                $o2 = $i2;
+                out_ref[2] = reinterpret_cast<void *>(_o2);
+                $o3 = $i3;
+                out_ref[3] = reinterpret_cast<void *>(_o3);
+                opus_multistream_encoder_destroy(enc);
+                //return 1;
+                return;
+              }
+              memset(pcm, 0, pcm_size);
+              memcpy(pcm, $i3->data, pcm_size);
+              if (pcm_size) {
+                const int len =
+                    opus_multistream_encode(enc, pcm, frame_size, out, MAX_PACKET);
+                (void)len;
+              }
+              $o0 = $i0;
+              $o1 = $i1;
+              $o2 = $i2;
+              $o3 = $i3;
+
+# 14. (규칙 1, L110) driver_110
+  - driver_110:
+      inputs: ['OpusMSEncoder']
+      outputs: []
+      exec: |
+              if ($i0 != 0x0) opus_multistream_encoder_destroy($i0);
+
+# 15. (규칙 2, L56-58) driver_opus_multistream_surround_encoder_create
+  - driver_opus_multistream_surround_encoder_create:
+      inputs: ['OpusMSEncoder', 'Wrapper_data_1']
+      outputs: ['OpusMSEncoder', 'Wrapper_data_1']
+      args: ['uint8_t', 'uint8_t', 'uint8_t', 'uint8_t', 'uint8_t', 'uint8_t', 'uint8_t']
+      exec: |
+              //
+              if ($i0 != 0x0) {
+                $o0 = $i0;
+                out_ref[0] = reinterpret_cast<void *>(_o0);
+                $o1 = $i1;
+                out_ref[1] = reinterpret_cast<void *>(_o1);
+                return;
+              }
+              opus_int32 nb_channels = (opus_int32)$a0;
+              int streams = (int)$a1;
+              int coupled_streams = (int)$a2;
+              int application = (int)$a3;
+              int err = (int)$a4;
+              opus_int32 frequency = (opus_int32)$a5;
+              unsigned char * mapping = (unsigned char *)$i1->data;
+
+              //
+              int mapping_family_arr[5] = {0, 1, 2, 3, 255};
+              int mapping_family = mapping_family_arr[$a6 % 5];
+              OpusMSEncoder * enc = opus_multistream_surround_encoder_create(
+                  frequency, nb_channels, mapping_family, &streams, &coupled_streams,
+                  mapping, application, &err);
+
+              $o0 = enc;
+              $o1 = $i1;
+
+# 16. (규칙 2, L60-62) driver_opus_multistream_encoder_create
+  - driver_opus_multistream_encoder_create:
+      inputs: ['OpusMSEncoder', 'Wrapper_data_1']
+      outputs: ['OpusMSEncoder', 'Wrapper_data_1']
+      args: ['uint8_t', 'uint8_t', 'uint8_t', 'uint8_t', 'uint8_t', 'uint8_t']
+      exec: |
+              //
+              if ($i0 != 0x0) {
+                $o0 = $i0;
+                out_ref[0] = reinterpret_cast<void *>(_o0);
+                $o1 = $i1;
+                out_ref[1] = reinterpret_cast<void *>(_o1);
+                return;
+              }
+
+              opus_int32 nb_channels = (opus_int32)$a0;
+              int streams = (int)$a1;
+              int coupled_streams = (int)$a2;
+              int application = (int)$a3;
+              int err = (int)$a4;
+              opus_int32 frequency = (opus_int32)$a5;
+              unsigned char * mapping = (unsigned char *)$i1->data;
+
+              //
+              OpusMSEncoder *enc = opus_multistream_encoder_create(frequency, nb_channels, streams,
+                                          coupled_streams, mapping, application,
+                                          &err);
+
+              $o0 = enc;
+              $o1 = $i1;
+
+# 17. (규칙 2, L66), driver_opus_multistream_encoder_destroy
+  - driver_opus_multistream_encoder_destroy:
+      inputs: ['OpusMSEncoder']
+      outputs: []
+      exec: |
+              opus_multistream_encoder_destroy($i0);
+
+
+# 18. (규칙 2, L104-105), driver_opus_multistream_encode
+  - driver_opus_multistream_encode:
+      inputs: ['OpusMSEncoder', 'Wrapper_data_0']
+      outputs: ['OpusMSEncoder', 'Wrapper_data_0']
+      args: ['int']
+      exec: |
+              int frame_size = $a0;
+              opus_int16 * pcm = (opus_int16 *)$i1->data;
+
+              const int len =
+                    opus_multistream_encode($i0, pcm, frame_size, out, MAX_PACKET);
+
+              $o0 = $i0;
+              $o1 = $i1;
+
+# 19. (규칙 3, L54-63) driver_54_to_63
+  - driver_54_to_63:
+      inputs: ['OpusMSEncoder', 'Wrapper_data_1']
+      outputs: ['OpusMSEncoder', 'Wrapper_data_1']
+      args: ['uint8_t', 'uint8_t', 'uint8_t', 'uint8_t', 'uint8_t', 'uint8_t', 'uint8_t', 'bool']
+      exec: |
+              if ( $i0 != 0x0 ) {
+                $o0 = $i0;
+                out_ref[0] = reinterpret_cast<void *>(_o0);
+                $o1 = $i1;
+                out_ref[1] = reinterpret_cast<void *>(_o1);
+                return;
+              }
+              OpusMSEncoder *enc = $i0;
+              opus_int32 nb_channels = (opus_int32)$a0;
+              int streams = (int)$a1;
+              int coupled_streams = (int)$a2;
+              int application = (int)$a3;
+              int err = (int)$a4;
+              opus_int32 frequency = (opus_int32)$a5;
+              unsigned char * mapping = (unsigned char *)$i1->data;
+
+              if ($a7) {
+                //int mapping_family = fdp.PickValueInArray({0, 1, 2, 3, 255});
+                int mapping_family_arr[5] = {0, 1, 2, 3, 255};
+                int mapping_family = mapping_family_arr[$a6 % 5];
+
+                enc = opus_multistream_surround_encoder_create(
+                    frequency, nb_channels, mapping_family, &streams, &coupled_streams,
+                    mapping, application, &err);
+              } else {
+                enc = opus_multistream_encoder_create(frequency, nb_channels, streams,
+                                                      coupled_streams, mapping, application,
+                                                      &err);
+              }
+
+
+# 20. (규칙 3, L65-68) driver_65_to_68
+  - driver_65_to_68:
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: ['bool']
+      exec: |
+              
+              $o0 = $i0;
+
+# 21. (규칙 3, L97-99) driver_97_to_100
+  - driver_65_to_68:
+      inputs: ['OpusMSEncoder', 'Wrapper_data_0']
+      outputs: ['OpusMSEncoder', 'Wrapper_data_0']
+      args: ['bool']
+      exec: |
+              if ($i1->size == 0) {
+                opus_multistream_encoder_destroy($i0);
+              }
+              $o0 = $i0;
+              $o1 = $i1;
+
+# 22. (규칙 3, L103-107) driver_103_to_107
+  - driver_103_to_107:
+      inputs: ['OpusMSEncoder', 'Wrapper_data_0']
+      outputs: ['OpusMSEncoder', 'Wrapper_data_0']
+      args: ['int']
+      exec: |
+              int frame_size = $a0;
+              opus_int16 * pcm = (opus_int16 *)$i1->data;
+              static unsigned char out[MAX_PACKET];
+
+              const int len =
+                    opus_multistream_encode($i0, pcm, frame_size, out, MAX_PACKET);
+
+              $o0 = $i0;
+              $o1 = $i1;
+
+Wrapper_data_0: #wrapper for uint32_t data
+  name: Wrapper_data_0
+  type: struct
+  headers: ['gfuzz_opus.h']
+  methods:
+  #required: Constructor
+  # 23
+  - Wrapper_data_0():
+      outputs: ['Wrapper_data_0']
+      args: ['uint8_t[1048576]', 'uint32_t']
+      exec: |
+          Wrapper_data_0 *wrapper = (Wrapper_data_0*)malloc(sizeof(Wrapper_data_0));
+          memcpy(wrapper->data, $a0, 1048576);
+          wrapper->size = ($a1 % MAX_BUFFER_SIZE) + 1;
+          $o0 = wrapper;
+
+  #required: Desctructor
+  # 24
+  - ~Wrapper_data_0():
+      inputs: ['Wrapper_data_0']
+      exec: |
+          free($i0);
+
+Wrapper_data_1: #wrapper for uint32_t data
+  name: Wrapper_data_1
+  type: struct
+  headers: ['gfuzz_opus.h']
+  methods:
+  #required: Constructor
+  # 25
+  - Wrapper_data_1():
+      outputs: ['Wrapper_data_1']
+      args: ['uint8_t[256]', 'uint8_t']
+      exec: |
+          Wrapper_data_1 *wrapper = (Wrapper_data_1*)malloc(sizeof(Wrapper_data_1));
+          memcpy(wrapper->data, $a0, 256);
+          wrapper->size = (uint32_t)$a1;
+          $o0 = wrapper;
+
+  #required: Desctructor
+  # 26
+  - ~Wrapper_data_1():
+      inputs: ['Wrapper_data_1']
+      exec: |
+          free($i0);
+
+Wrapper_int: #wrapper for uint32_t data
+  name: Wrapper_int
+  type: struct
+  headers: ['gfuzz_opus.h']
+  methods:
+  #required: Constructor
+  # 27
+  - Wrapper_int():
+      outputs: ['Wrapper_int']
+      args: ['int']
+      exec: |
+          Wrapper_int *wrapper = (Wrapper_int*)malloc(sizeof(Wrapper_int));
+          wrapper->val = $a0;
+          $o0 = wrapper;
+
+  #required: Desctructor
+  # 28
+  - ~Wrapper_int():
+      inputs: ['Wrapper_int']
+      exec: |
+          free($i0);

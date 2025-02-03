@@ -1,0 +1,213 @@
+curl:
+  information:
+    version:
+      curl: a20f74a16ae1e89be170eeaa6059b37e513392a4
+      curl-fuzzer: dd486c1e5910e722e43c451d4de928ac80f5967d
+    fuzzing_target: https://github.com/curl/curl-fuzzer/blob/dd486c1e5910e722e43c451d4de928ac80f5967d/curl_fuzzer.cc
+    initial_seed: https://github.com/curl/curl-fuzzer/blob/dd486c1e5910e722e43c451d4de928ac80f5967d/corpora/curl_fuzzer/oss-fuzz-gen-c5ad923ce92551a488992eeb4bf0717d5a894fd9
+    dictionary: https://github.com/curl/curl-fuzzer/blob/dd486c1e5910e722e43c451d4de928ac80f5967d/ossconfig/http.dic
+
+  environment:
+    parrent_image: base
+    fuzzing_image: curl
+    coverage_image: curl_cov
+    ossfuzz:
+      initial_seed_path: fuzzing/ossfuzz_seed/curl/oss-fuzz-gen-c5ad923ce92551a488992eeb4bf0717d5a894fd9
+      dictionary_path: fuzzing/dictionary/curl/http.dict
+      work_dir_path_in_container: /graphfuzz/gfuzz
+    clipfuzz:
+      driver_path: api_block/curl/integrated_driver.cpp
+      api_usecase_protobuf_path: api_block/curl/api_block.proto
+      work_dir_path_in_container: /graphfuzz/integrated
+      seed_gen:
+        script_path: api_block/curl/convert_to_clipfuzz_seed.py
+        min_api_uc_len: 4
+        min_buffer_n: 1
+        min_pool_size: 4
+    graphfuzz:
+      schema_path: schema/curl/schema.yaml
+      work_dir_path_in_container: /graphfuzz/gfuzz
+      seed_gen:
+        script_path: schema/curl/convert_to_gfuzz_seed.py
+
+harfbuzz:
+  information:
+    version:
+      harfbuzz: cb47dca74cbf6d147aac9cf3067f249555aa68b1
+    fuzzing_target: https://github.com/harfbuzz/harfbuzz/blob/cb47dca74cbf6d147aac9cf3067f249555aa68b1/test/fuzzing/hb-shape-fuzzer.cc
+    initial_seed: https://github.com/harfbuzz/harfbuzz/blob/cb47dca74cbf6d147aac9cf3067f249555aa68b1/test/api/fonts/SourceSansPro-Regular.otf
+
+  environment:
+    parrent_image: base2
+    fuzzing_image: harfbuzz
+    coverage_image: harfbuzz
+    ossfuzz:
+      initial_seed_path: fuzzing/ossfuzz_seed/harfbuzz/SourceSansPro-Regular.otf
+      work_dir_path_in_container: /graphfuzz/gfuzz
+    clipfuzz:
+      driver_path: api_block/harfbuzz/integrated_driver.cpp
+      api_usecase_protobuf_path: api_block/harfbuzz/api_block.proto
+      work_dir_path_in_container: /graphfuzz/integrated
+      seed_gen:
+        script_path: api_block/harfbuzz/convert_to_clipfuzz_seed.py
+        min_api_uc_len: 9
+        min_buffer_n: 1
+        min_pool_size: 11
+    graphfuzz:
+      schema_path: schema/harfbuzz/schema.yaml
+      work_dir_path_in_container: /graphfuzz/gfuzz
+      seed_gen:
+        script_path: schema/harfbuzz/convert_to_gfuzz_seed.py
+
+Little-CMS:
+  information:
+    version:
+      Little-CMS: f0d963261b28253999e239a844ac74d5a8960f40
+    fuzzing_target: https://github.com/google/fuzzbench/blob/ae21be9dff84936e64b2525ab4ea1411a0b81529/benchmarks/lcms_cms_transform_fuzzer/cms_transform_fuzzer.cc
+    initial_seed: https://github.com/google/fuzzbench/blob/ae21be9dff84936e64b2525ab4ea1411a0b81529/benchmarks/lcms_cms_transform_fuzzer/seeds/seed
+
+  environment:
+    parrent_image: Little-CMS
+    fuzzing_image: Little-CMS
+    coverage_image: Little-CMS
+    ossfuzz:
+      initial_seed_path: fuzzing/ossfuzz_seed/Little-CMS/seed
+      work_dir_path_in_container: /graphfuzz/Little-CMS/gfuzz
+    clipfuzz:
+      driver_path: api_block/Little-CMS/integrated_driver.cpp
+      api_usecase_protobuf_path: api_block/Little-CMS/api_block.proto
+      work_dir_path_in_container: /graphfuzz/Little-CMS/integrated
+      seed_gen:
+        script_path: api_block/Little-CMS/convert_to_clipfuzz_seed.py
+        min_api_uc_len: 7
+        min_buffer_n: 1
+        min_pool_size: 4
+    graphfuzz:
+      schema_path: schema/Little-CMS/schema.yaml
+      work_dir_path_in_container: /graphfuzz/Little-CMS/gfuzz
+      seed_gen:
+        script_path: schema/Little-CMS/convert_to_gfuzz_seed.py
+
+openssl:
+  information:
+    version:
+      openssl: b0593c086dd303af31dc1e30233149978dd613c4
+    fuzzing_target: https://github.com/openssl/openssl/blob/b0593c086dd303af31dc1e30233149978dd613c4/fuzz/x509.c
+    initial_seed: https://github.com/openssl/openssl/blob/b0593c086dd303af31dc1e30233149978dd613c4/fuzz/corpora/x509/f79b4609de017f27867cf122e1d393e50702fdda
+    dictionary: https://github.com/openssl/openssl/blob/b0593c086dd303af31dc1e30233149978dd613c4/fuzz/oids.txt
+
+  environment:
+    parrent_image: openssl
+    fuzzing_image: openssl
+    coverage_image: openssl
+    ossfuzz:
+      initial_seed_path: fuzzing/ossfuzz_seed/openssl/f79b4609de017f27867cf122e1d393e50702fdda
+      dictionary_path: fuzzing/dictionary/openssl/x509.dict 
+      work_dir_path_in_container: /graphfuzz/gfuzz
+    clipfuzz:
+      driver_path: api_block/openssl/integrated_driver.cpp
+      api_usecase_protobuf_path: api_block/openssl/api_block.proto
+      work_dir_path_in_container: /graphfuzz/integrated
+      seed_gen:
+        script_path: api_block/openssl/convert_to_clipfuzz_seed.py
+        min_api_uc_len: 2
+        min_buffer_n: 1
+        min_pool_size: 2
+    graphfuzz:
+      schema_path: schema/openssl/schema.yaml
+      work_dir_path_in_container: /graphfuzz/gfuzz
+      seed_gen:
+        script_path: schema/openssl/convert_to_gfuzz_seed.py
+
+
+
+
+openthread:
+  information:
+    version:
+      openthread: 25506997f286fdbfa72725f4cee78c922c896255
+    fuzzing_target: https://github.com/openthread/openthread/blob/25506997f286fdbfa72725f4cee78c922c896255/tests/fuzz/ip6_send.cpp
+    initial_seed: https://github.com/openthread/openthread/blob/25506997f286fdbfa72725f4cee78c922c896255/tests/fuzz/corpora/radio-receive-done/mle-parent-request
+
+  environment:
+    parrent_image: base
+    fuzzing_image: openthread
+    coverage_image: openthread
+    ossfuzz:
+      initial_seed_path: fuzzing/ossfuzz_seed/openthread/mle-parent-request
+      work_dir_path_in_container: /graphfuzz/gfuzz
+    clipfuzz:
+      driver_path: api_block/openthread/integrated_driver.cpp
+      api_usecase_protobuf_path: api_block/openthread/api_block.proto
+      work_dir_path_in_container: /graphfuzz/integrated
+      seed_gen:
+        script_path: api_block/openthread/convert_to_clipfuzz_seed.py
+        min_api_uc_len: 14
+        min_buffer_n: 1
+        min_pool_size: 3
+    graphfuzz:
+      schema_path: schema/openthread/schema.yaml
+      work_dir_path_in_container: /graphfuzz/gfuzz
+      seed_gen:
+        script_path: schema/openthread/convert_to_gfuzz_seed.py
+
+opus:
+  information:
+    version:
+      opus: 9faf6f071cbb75432bfbc7fb7286d49eb2ba8512
+    fuzzing_target: https://github.com/google/oss-fuzz/blob/9faf6f071cbb75432bfbc7fb7286d49eb2ba8512/projects/opus/opus_multistream_encode_fuzzer.cc
+    initial_seed: https://opus-codec.org/static/testvectors/opus_testvectors.tar.gz # testvector01.bit
+
+  environment:
+    parrent_image: base2
+    fuzzing_image: opus
+    coverage_image: opus
+    ossfuzz:
+      initial_seed_path: fuzzing/ossfuzz_seed/opus/testvector01.bit
+      work_dir_path_in_container: /graphfuzz/gfuzz
+    clipfuzz:
+      driver_path: api_block/opus/integrated_driver.cpp
+      api_usecase_protobuf_path: api_block/opus/api_block.proto
+      work_dir_path_in_container: /graphfuzz/integrated
+      seed_gen:
+        script_path: api_block/opus/convert_to_clipfuzz_seed.py
+        min_api_uc_len: 14
+        min_buffer_n: 2
+        min_pool_size: 13
+    graphfuzz:
+      schema_path: schema/opus/schema.yaml
+      work_dir_path_in_container: /graphfuzz/gfuzz
+      seed_gen:
+        script_path: schema/opus/convert_to_gfuzz_seed.py
+
+re2:
+  information:
+    version:
+      re2: b025c6a3ae05995660e3b882eb3277f4399ced1a
+    fuzzing_target: https://github.com/google/re2/blob/6598a8ecd57724c8c7d43b2fca8eb9f9969ce57c/re2/fuzzing/re2_fuzzer.cc # modifed to identify API block
+    initial_seed: "(?P<A>expr(?P<B>expr)(?P<C>expr))((expr)(?P<D>expr))" # string in unit test
+    dictionary: https://github.com/google/fuzzing/blob/master/dictionaries/regexp.dict
+
+  environment:
+    parrent_image: re2
+    fuzzing_image: re2
+    coverage_image: re2
+    ossfuzz:
+      initial_seed_path: fuzzing/ossfuzz_seed/re2/seed.bin
+      dictionary_path: fuzzing/dictionary/re2/fuzzer.dict
+      work_dir_path_in_container: /graphfuzz/re2/gfuzz
+    clipfuzz:
+      driver_path: api_block/re2/integrated_driver.cpp
+      api_usecase_protobuf_path: api_block/re2/api_block.proto
+      work_dir_path_in_container: /graphfuzz/re2/integrated
+      seed_gen:
+        script_path: api_block/re2/convert_to_clipfuzz_seed.py
+        min_api_uc_len: 13
+        min_buffer_n: 2
+        min_pool_size: 2
+    graphfuzz:
+      schema_path: schema/re2/schema.yaml
+      work_dir_path_in_container: /graphfuzz/re2/gfuzz
+      seed_gen:
+        script_path: schema/re2/convert_to_gfuzz_seed.py
+

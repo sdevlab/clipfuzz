@@ -1,0 +1,147 @@
+FROM ubuntu:20.04
+ENV TERM xterm-256color
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-get update && \
+    apt-get -y upgrade && \
+    apt-get -y install \
+    clang-12 make cmake git wget curl tar gdb vim clang-tools-12 \
+    python3 python3-pip libprotobuf-dev protobuf-compiler
+
+# Install poetry
+RUN python3 -m pip install poetry
+
+WORKDIR /graphfuzz
+COPY submodule/GraphFuzz/cli /graphfuzz/cli
+COPY submodule/GraphFuzz/core /graphfuzz/core
+COPY submodule/GraphFuzz/CMakeLists.txt /graphfuzz/CMakeLists.txt
+
+# Build and install libgraphfuzz
+RUN cd /graphfuzz && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    make && \
+    make install
+
+# Install gfuzz python tool
+RUN cd /graphfuzz/cli && \
+    poetry build && \
+    poetry export > dist/requirements.txt && \
+    python3 -m pip install -r dist/requirements.txt && \
+    python3 -m pip install ./dist/gfuzz-*.whl
+
+COPY submodule/openthread /graphfuzz/openthread
+WORKDIR /graphfuzz/openthread
+
+RUN apt-get install -y libc++1-12 libc++-12-dev libc++abi1-12 libc++abi-12-dev
+ENV CC="clang-12"
+ENV CXX="clang++-12"
+ENV CFLAGS="-O1 -fno-omit-frame-pointer -gline-tables-only -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=fuzzer-no-link"
+ENV CXXFLAGS="-O1 -fno-omit-frame-pointer -gline-tables-only -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION -fsanitize=address -fsanitize-address-use-after-scope -fsanitize=fuzzer-no-link -stdlib=libc++"
+ENV LIB_FUZZING_ENGINE="-fsanitize=fuzzer"
+
+RUN mkdir build && \
+    cd build && \
+    cmake .. \
+        -DCMAKE_C_FLAGS="${CFLAGS}" \
+        -DCMAKE_CXX_FLAGS="${CXXFLAGS}" \
+        -DOT_BUILD_EXECUTABLES=OFF \
+        -DOT_FUZZ_TARGETS=ON \
+        -DOT_MTD=OFF \
+        -DOT_PLATFORM=external \
+        -DOT_RCP=OFF \
+        -DOT_BORDER_AGENT=ON \
+        -DOT_BORDER_ROUTER=ON \
+        -DOT_CHANNEL_MANAGER=ON \
+        -DOT_CHANNEL_MONITOR=ON \
+        -DOT_COAP=ON \
+        -DOT_COAPS=ON \
+        -DOT_COAP_BLOCK=ON \
+        -DOT_COAP_OBSERVE=ON \
+        -DOT_COMMISSIONER=ON \
+        -DOT_DATASET_UPDATER=ON \
+        -DOT_DHCP6_CLIENT=ON \
+        -DOT_DHCP6_SERVER=ON \
+        -DOT_DNS_CLIENT=ON \
+        -DOT_ECDSA=ON \
+        -DOT_HISTORY_TRACKER=ON \
+        -DOT_IP6_FRAGM=ON \
+        -DOT_JAM_DETECTION=ON \
+        -DOT_JOINER=ON \
+        -DOT_LINK_RAW=ON \
+        -DOT_LOG_OUTPUT=APP \
+        -DOT_MAC_FILTER=ON \
+        -DOT_NETDATA_PUBLISHER=ON \
+        -DOT_NETDIAG_CLIENT=ON \
+        -DOT_PING_SENDER=ON \
+        -DOT_SERVICE=ON \
+        -DOT_SLAAC=ON \
+        -DOT_SNTP_CLIENT=ON \
+        -DOT_SRN_ADV_PROXY=ON \
+        -DOT_SRP_CLIENT=ON \
+        -DOT_SRP_SERVER=ON \
+        -DOT_THREAD_VERSION=1.3 \
+        -DOT_UPTIME=ON && \
+    make ot-ip6-send-fuzzer -j12
+
+RUN mkdir gfuzz
+
+COPY submodule/openthread /graphfuzz/openthread_cov
+WORKDIR /graphfuzz/openthread_cov
+
+RUN sed -i 's/-Wall -Wextra -Wshadow> -g/-Wall -Wextra -Wshadow> -g -fprofile-instr-generate -fcoverage-mapping/g' CMakeLists.txt && \
+    sed -i 's/-Wall -Wextra -Wshadow -Wno-c++14-compat -fno-exceptions>/-Wall -Wextra -Wshadow> -g -fprofile-instr-generate -fcoverage-mapping/g' CMakeLists.txt && \
+    mkdir build && \
+    cd build && \
+    CC=clang-12 CXX=clang++-12 CFLAGS="-g -fprofile-instr-generate -fcoverage-mapping" CXXFLAGS="-fprofile-instr-generate -fcoverage-mapping" cmake .. \
+        -DCMAKE_C_FLAGS="${CFLAGS}" \
+        -DCMAKE_CXX_FLAGS="${CXXFLAGS}" \
+        -DOT_BUILD_EXECUTABLES=OFF \
+        -DOT_FUZZ_TARGETS=ON \
+        -DOT_MTD=OFF \
+        -DOT_PLATFORM=external \
+        -DOT_RCP=OFF \
+        -DOT_BORDER_AGENT=ON \
+        -DOT_BORDER_ROUTER=ON \
+        -DOT_CHANNEL_MANAGER=ON \
+        -DOT_CHANNEL_MONITOR=ON \
+        -DOT_COAP=ON \
+        -DOT_COAPS=ON \
+        -DOT_COAP_BLOCK=ON \
+        -DOT_COAP_OBSERVE=ON \
+        -DOT_COMMISSIONER=ON \
+        -DOT_DATASET_UPDATER=ON \
+        -DOT_DHCP6_CLIENT=ON \
+        -DOT_DHCP6_SERVER=ON \
+        -DOT_DNS_CLIENT=ON \
+        -DOT_ECDSA=ON \
+        -DOT_HISTORY_TRACKER=ON \
+        -DOT_IP6_FRAGM=ON \
+        -DOT_JAM_DETECTION=ON \
+        -DOT_JOINER=ON \
+        -DOT_LINK_RAW=ON \
+        -DOT_LOG_OUTPUT=APP \
+        -DOT_MAC_FILTER=ON \
+        -DOT_NETDATA_PUBLISHER=ON \
+        -DOT_NETDIAG_CLIENT=ON \
+        -DOT_PING_SENDER=ON \
+        -DOT_SERVICE=ON \
+        -DOT_SLAAC=ON \
+        -DOT_SNTP_CLIENT=ON \
+        -DOT_SRN_ADV_PROXY=ON \
+        -DOT_SRP_CLIENT=ON \
+        -DOT_SRP_SERVER=ON \
+        -DOT_THREAD_VERSION=1.3 \
+        -DOT_UPTIME=ON && \
+    CC=clang-12 CXX=clang++-12 CFLAGS="-g -fprofile-instr-generate -fcoverage-mapping" CXXFLAGS="-fprofile-instr-generate -fcoverage-mapping" make ot-ip6-send-fuzzer -j12
+
+
+WORKDIR /graphfuzz/openthread/gfuzz
+
+COPY artifact/openthread/header /graphfuzz/openthread/gfuzz/header
+COPY artifact/openthread/script /graphfuzz/openthread/gfuzz/script
+COPY artifact/openthread/schema.yaml /graphfuzz/openthread/gfuzz/schema.yaml
+
+RUN ./script/build.sh
+

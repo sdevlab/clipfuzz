@@ -1,0 +1,969 @@
+OpusMSEncoder:
+  name: OpusMSEncoder
+  type: struct
+  headers: ['gfuzz_opus.h']
+  methods:    
+# 0
+  - driver_opus_multistream_encoder_create():
+      inputs: []
+      outputs: ['OpusMSEncoder']
+      args: ['uint8_t','uint8_t', 'uint8_t', 'uint8_t', 'uint8_t', 'uint8_t[255]']
+      exec: |
+          OpusMSEncoder *enc;
+          
+          nb_channels = $a0; 
+          int _arr0[] = {8, 12, 16, 24, 48};
+          //const opus_int32 frequency 
+          frequency = _arr0[$a1 % 5] * 1000;
+          int streams = (int)$a2; 
+          int coupled_streams = (int)$a3;
+          int _arr1[] = {5, 10, 20, 40, 80, 120, 160, 200, 240};
+          int _arr2[] = {OPUS_APPLICATION_AUDIO,
+            OPUS_APPLICATION_VOIP,
+            OPUS_APPLICATION_RESTRICTED_LOWDELAY};
+          int application = _arr2[$a4 % 3];
+          unsigned char *mapping = (unsigned char *)malloc(nb_channels);
+          memcpy(mapping, $a5, nb_channels);
+          int err = OPUS_OK;
+      
+          enc = opus_multistream_encoder_create(
+              frequency, nb_channels, streams,
+              coupled_streams, mapping, application,
+              &err);
+         
+          free(mapping);
+          if (err != OPUS_OK || enc == NULL) {
+            opus_multistream_encoder_destroy(enc);
+            skipped = 1;
+            return;
+          }
+          $o0 = enc;
+# 1
+  - driver_opus_multistream_surround_encoder_create():
+      inputs: []
+      outputs: ['OpusMSEncoder']
+      args: ['uint8_t', 'uint8_t', 'uint8_t', 'uint8_t', 'uint8_t', 'uint8_t[255]', 'uint8_t']
+      exec: |
+          OpusMSEncoder *enc;
+          nb_channels = $a0; 
+          int _arr0[] = {8, 12, 16, 24, 48};
+          //const opus_int32 frequency 
+          frequency = _arr0[$a1 % 5] * 1000;
+          int streams = (int)$a2;
+          int coupled_streams = (int)$a3; 
+          int _arr1[] = {5, 10, 20, 40, 80, 120, 160, 200, 240};
+          int _arr2[] = {OPUS_APPLICATION_AUDIO,
+            OPUS_APPLICATION_VOIP,
+            OPUS_APPLICATION_RESTRICTED_LOWDELAY};
+          int application = _arr2[$a4 % 3];
+
+          unsigned char *mapping = (unsigned char *)malloc(nb_channels);
+          memcpy(mapping, &($a5), nb_channels);
+          int err = OPUS_OK;
+          int _arr3[] = {0, 1, 2, 3, 255};
+          int mapping_family = _arr3[$a6 % 5];
+              
+          enc = opus_multistream_surround_encoder_create(
+              frequency, nb_channels, mapping_family, &streams,
+              &coupled_streams, mapping, application, &err);
+          free(mapping);
+
+          if (err != OPUS_OK || enc == NULL) {
+            opus_multistream_encoder_destroy(enc);
+            skipped = 1;
+            return;
+          }
+          $o0 = enc;
+# 2
+  - driver_opus_multistream_encoder_destroy():
+      inputs: ['OpusMSEncoder']
+      outputs: []
+      exec: |
+          if (skipped) return;
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_destroy($i0);
+# 3
+  - driver_line_95_to_109():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: ['uint8_t', 'uint32_t','uint8_t[100000]']
+      #args: ['uint8_t', 'char[TEST_INPUT_MAX_SIZE]']
+      exec: |
+          if (skipped) return;
+          OpusMSEncoder *enc = $i0;
+          
+          uint32_t Size = $a1 % TEST_INPUT_MAX_SIZE; 
+          uint8_t *Data = $a2;
+          //int _arr0[] = {8, 12, 16, 24, 48};
+          //const opus_int32 frequency = _arr0[$a0 % 5];
+          int _arr0[] = {5, 10, 20, 40, 80, 120, 160, 200, 240};
+          int frame_size_ms_x2 = _arr0[(int)($a0 % 9)];
+          int frame_size = frame_size_ms_x2 * frequency / 2000;
+          const int pcm_size = sizeof(opus_int16) * frame_size * nb_channels;
+
+          opus_int16 *pcm = (opus_int16 *)opus_alloc(pcm_size);
+          if (pcm == NULL) {
+            opus_multistream_encoder_destroy(enc);
+            skipped = 1;
+            return;
+          }
+          memset(pcm, 0, pcm_size);
+
+            if (pcm_size < Size)
+              memcpy(pcm, Data, pcm_size);
+            else
+              memcpy(pcm, Data, Size);
+            const int len =
+              opus_multistream_encode(enc, pcm, frame_size, out, MAX_PACKET);
+          
+          opus_free(pcm);
+          
+          $o0 = enc;
+
+  - driver_opus_multistream_encoder_ctl_0():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: ['uint8_t']
+      exec: |
+          if (skipped) return;
+          OpusMSEncoder *enc = $i0;
+          int a0 = (int)$a0;
+          a0 = a0 % (10+1);
+          opus_multistream_encoder_ctl(enc,  OPUS_SET_COMPLEXITY(a0));
+          $o0 = enc;
+
+  - driver_opus_multistream_encoder_ctl_1():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: ['bool']
+      exec: |
+          if (skipped) return;
+          OpusMSEncoder *enc = $i0;
+          int a0 = (int)$a0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_VBR($a0));
+          $o0 = enc;
+
+  - driver_opus_multistream_encoder_ctl_2():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: ['bool']
+      exec: |
+          if (skipped) return;
+          OpusMSEncoder *enc = $i0;
+          int a0 = (int)$a0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_VBR_CONSTRAINT($a0));
+          $o0 = enc;
+
+  - driver_opus_multistream_encoder_ctl_3():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: ['uint8_t']
+      exec: |
+          if (skipped) return;
+          OpusMSEncoder *enc = $i0;
+          int _arr0[3] = {OPUS_AUTO, 1, 2};
+          int idx = (int)$a0;
+          idx = idx % 3;
+          opus_multistream_encoder_ctl(enc,  OPUS_SET_FORCE_CHANNELS(_arr0[idx]));
+          $o0 = enc;
+
+  - driver_opus_multistream_encoder_ctl_4():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: ['uint8_t']
+      exec: |
+          if (skipped) return;
+          OpusMSEncoder *enc = $i0;
+          int _arr0[5] = {
+            OPUS_BANDWIDTH_NARROWBAND, OPUS_BANDWIDTH_MEDIUMBAND,
+            OPUS_BANDWIDTH_WIDEBAND, OPUS_BANDWIDTH_SUPERWIDEBAND,
+            OPUS_BANDWIDTH_FULLBAND};
+          int idx = (int)$a0;
+          idx = idx % 5;
+          opus_multistream_encoder_ctl(enc,  OPUS_SET_MAX_BANDWIDTH(_arr0[idx]));
+          $o0 = enc;
+
+  - driver_opus_multistream_encoder_ctl_5():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: ['bool']
+      exec: |
+          if (skipped) return;
+          OpusMSEncoder *enc = $i0;
+          int a0 = (int)$a0;
+          a0 = a0 % 10;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_INBAND_FEC($a0));
+          $o0 = enc;
+
+  - driver_opus_multistream_encoder_ctl_6():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: ['uint8_t']
+      exec: |
+          if (skipped) return;
+          OpusMSEncoder *enc = $i0;
+          int a0 = (int)$a0;
+          a0 = a0 % (100+1);
+          opus_multistream_encoder_ctl(enc,  OPUS_SET_PACKET_LOSS_PERC(a0));
+          $o0 = enc;
+
+  - driver_opus_multistream_encoder_ctl_7():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: ['bool']
+      exec: |
+          if (skipped) return;
+          OpusMSEncoder *enc = $i0;
+          int a0 = (int)$a0;
+          a0 = a0 % 10;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_DTX($a0));
+          $o0 = enc;
+
+  - driver_opus_multistream_encoder_ctl_8():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: ['uint8_t']
+      exec: |
+          if (skipped) return;
+          OpusMSEncoder *enc = $i0;
+          int a0 = (int)$a0;
+          a0 = (a0 % (24-8+1)) + 8;
+          opus_multistream_encoder_ctl(enc,  OPUS_SET_LSB_DEPTH(a0));
+          $o0 = enc;
+
+  - driver_opus_multistream_encoder_ctl_9():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: ['bool']
+      exec: |
+          if (skipped) return;
+          OpusMSEncoder *enc = $i0;
+          int a0 = (int)$a0;
+          a0 = a0 % 10;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_PREDICTION_DISABLED($a0));
+          $o0 = enc;
+
+  - driver_opus_multistream_encoder_ctl_10():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: ['uint8_t']
+      exec: |
+          if (skipped) return;
+          OpusMSEncoder *enc = $i0;
+          int _arr0[4] = {
+            OPUS_AUTO, OPUS_SIGNAL_VOICE, OPUS_SIGNAL_MUSIC};
+          int idx = (int)$a0;
+          idx = idx % 3;
+          opus_multistream_encoder_ctl(enc,  OPUS_SET_SIGNAL(_arr0[idx]));
+          $o0 = enc;
+
+  - driver_opus_multistream_encoder_ctl_11():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: ['bool']
+      exec: |
+          if (skipped) return;
+          OpusMSEncoder *enc = $i0;
+          int a0 = (int)$a0;
+          a0 = a0 % 10;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_PHASE_INVERSION_DISABLED($a0));
+          $o0 = enc;
+
+#OpusMSEncoder:
+#TC-1
+# 16
+  - opus_multistream_surround_encoder_create_0():
+      inputs: []
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc;
+          int err;
+          //unsigned char data[2460];
+          int streams;
+          int coupled_streams;
+          unsigned char mapping[1];
+      
+          enc = opus_multistream_surround_encoder_create(16000
+              , 1, 1, &streams,&coupled_streams, mapping
+              , OPUS_APPLICATION_VOIP, &err);
+              
+          $o0 = enc;
+                
+  - opus_multistream_encoder_ctl_0():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_SIGNAL(OPUS_SIGNAL_MUSIC));
+          $o0 = enc;     
+# 18   
+  - opus_multistream_encoder_ctl_1():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_VBR(0));
+          $o0 = enc;     
+          
+  - opus_multistream_encoder_ctl_2():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_VBR_CONSTRAINT(0));
+          $o0 = enc;
+# 20
+  - opus_multistream_encoder_ctl_3():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_PREDICTION_DISABLED(1));
+          $o0 = enc;
+
+  - opus_multistream_encoder_ctl_4():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_PHASE_INVERSION_DISABLED(0));
+          $o0 = enc;
+# 22
+  - opus_multistream_encoder_ctl_5():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_DTX(0));
+          $o0 = enc;
+          
+  - opus_multistream_encoder_ctl_6():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_COMPLEXITY(0));
+          $o0 = enc;
+# 24
+  - opus_multistream_encoder_ctl_7():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_MAX_BANDWIDTH(OPUS_BANDWIDTH_NARROWBAND));
+          $o0 = enc;
+            
+  - opus_multistream_encoder_ctl_8():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_BANDWIDTH(OPUS_AUTO));
+          $o0 = enc;
+# 26
+  - opus_multistream_encoder_ctl_9():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_LSB_DEPTH(8));
+          $o0 = enc;
+
+  - opus_multistream_encoder_ctl_10():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_INBAND_FEC(0));
+          $o0 = enc;
+# 28
+  - opus_multistream_encoder_ctl_11():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_PACKET_LOSS_PERC(0));
+          $o0 = enc;
+          
+  - opus_multistream_encoder_ctl_12():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_BITRATE(OPUS_AUTO));
+          $o0 = enc;
+# 30  
+  - opus_multistream_encode_0():
+      inputs: ['OpusMSEncoder', 'Wrapper_data_0']
+      outputs: ['OpusMSEncoder', 'Wrapper_data_0']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          unsigned char *data = $i1->data; //data[2460];
+          
+          static const short pcm[320] =
+          {
+               0,     0,     0,     0,     0,     0,     0,     0,     0,
+               0,     0,     0,     0,     0,     0,  1792,  1799,  1799,
+            1799,  1799,  1799,  1799,  1799,  1799,  1799,  1799,  1799,
+            1799,  1799,  1799,  1799,  1799,     0, 25600,  1799,  1799,
+            1799,  1799,  1799,  1799,  1799,  1799,  1799,  1799,  1799,
+            1799,  1799,  1799,  1799,     7,     0,   255,     0,     0,
+               0,     0,     0,     0,     0,     0,     0, 32767,    -1,
+               0,     0,     0,   100,     0, 16384,     0,     0,     0,
+               0,     0,     0,     4,     0,     0,  -256,   255,     0,
+               0,     0,     0,     0,     0,     0,     0,     0,     0,
+               0,     0,     0,     0,     0,     0,     0,     0,     0,
+               0,     0,-32768,     0,     0,     0,     0,     0,     0,
+               0,     0,     0,     0,     0,     0,     0,     0,     0,
+               0,     0,     0,     0,     0,     0,     0,     0,     0,
+               0,     0,     0,     0,   128,     0,     0,     0,     0,
+               0,     0,     0,     0,  -256,     0,     0,    32,     0,
+               0,     0,     0,     0,     0,     0,  4352,     4,   228,
+               0,     0,     0,     0,     0,     0,     0,     0,     0,
+               0,     0,     0,     0,     0,     0,  5632,     0,     0,
+               0,     0,-32768,     0,     0,     0,     0,     0,     0,
+               0,     0,     0,     0,     0,     0,     0,     0,     0,
+               0,     0,     0,     0,     0,     0,     0,     0,     0,
+               0,     0,     0,   256,     0,     0,     0,     0,     0,
+               0,     0,     0,     0,     0,     0,     0,     0,     0,
+           -3944, 10500,  4285, 10459, -6474, 10204, -6539, 11601, -6824,
+           13385, -7142, 13872,-11553, 13670, -7725, 13463, -6887,  7874,
+           -5580, 12600, -4964, 12480,  3254, 11741, -4210,  9741, -3155,
+            7558, -5468,  5431, -1073,  3641, -1304,     0,    -1,   343,
+              26,     0,     0,   150,     0,     0,     0,     0,     0,
+               0,     0,     0,     0,     0,     0,     0,     0,     0,
+               0,     0,     0,     0,     0,     0,     0,     0,     0,
+               0,     0,     0,     0,     0,     0,     0,     0,     0,
+               0,     0,     0,     0,     0,     0,     0,     0,     0,
+               0,     0,     0,  1799,  1799,  1799,  1799,  1799, -2553,
+               7,  1792,  1799,  1799,  1799,  1799,  1799,  1799,  1799,
+            1799,  1799,  1799,  1799, -9721
+          };
+          opus_multistream_encode(enc, pcm, 320, data, 2460);
+            
+          $o0 = enc;
+          $o1 = $i1;
+
+#31
+  - opus_multistream_encoder_ctl_13():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_VBR_CONSTRAINT(1));
+          $o0 = enc;
+
+#32
+  - opus_multistream_encoder_ctl_14():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_DTX(1));
+          $o0 = enc;
+#33
+  - opus_multistream_encoder_ctl_15():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_COMPLEXITY(10));
+          $o0 = enc;
+#34
+  - opus_multistream_encoder_ctl_16():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_MAX_BANDWIDTH(OPUS_BANDWIDTH_FULLBAND));
+          $o0 = enc;
+#35
+  - opus_multistream_encoder_ctl_17():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_BANDWIDTH(OPUS_BANDWIDTH_FULLBAND));
+          $o0 = enc;
+#36
+  - opus_multistream_encoder_ctl_18():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_LSB_DEPTH(18));
+          $o0 = enc;
+#37
+  - opus_multistream_encoder_ctl_19():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_INBAND_FEC(1));
+          $o0 = enc;
+#38
+  - opus_multistream_encoder_ctl_20():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_PACKET_LOSS_PERC(90));
+          $o0 = enc;
+#39
+  - opus_multistream_encoder_ctl_21():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_BITRATE(280130));
+          $o0 = enc;
+            
+  - opus_multistream_encode_1():
+      inputs: ['OpusMSEncoder', 'Wrapper_data_0']
+      outputs: ['OpusMSEncoder', 'Wrapper_data_0']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          unsigned char *data = $i1->data; //data[2460];
+          
+          static const short pcm[160] =
+          {
+             -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+             -9510, -9510, -9510, -9510, -9510, -9510, -9526, -9510, -9510,
+             -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+             -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+             -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+             -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+             -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+             -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+             -9510, -9510, -9510, -9510, -9510, 25600, -9510, -9510, -9510,
+             -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+             -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+             -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+             -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+             -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+             -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+             -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+             -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+             -9510, -9510, -9510, -9510, -9510, -9510, -9510
+          };
+          opus_multistream_encode(enc, pcm, 160, data, 2460);
+          
+          $o0 = enc;
+          $o1 = $i1;
+
+
+# 41
+  - opus_multistream_encode_2():
+      inputs: ['OpusMSEncoder', 'Wrapper_data_0']
+      outputs: ['OpusMSEncoder', 'Wrapper_data_0']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          unsigned char *data = $i1->data; //data[2460];
+          
+          static const short pcm[160] =
+          {
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9494, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510
+          };
+          opus_multistream_encode(enc, pcm, 160, data, 2460);
+          
+          $o0 = enc;
+          $o1 = $i1;
+          
+  - opus_multistream_encode_3():
+      inputs: ['OpusMSEncoder', 'Wrapper_data_0']
+      outputs: ['OpusMSEncoder', 'Wrapper_data_0']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          unsigned char *data = $i1->data; //data[2460];
+          
+          static const short pcm[160] =
+          {
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9479, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510, -9510,
+           -9510, -9510, -9510, -9510, -9510, -9510, -9510
+          };
+          opus_multistream_encode(enc, pcm, 160, data, 2460);
+          
+          $o0 = enc;
+          $o1 = $i1;
+            
+# skip duplicated blocks
+# 43
+  - opus_multistream_encode_4():
+      inputs: ['OpusMSEncoder', 'Wrapper_data_0']
+      outputs: ['OpusMSEncoder', 'Wrapper_data_0']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          unsigned char *data = $i1->data; //data[2460];
+          
+          static const short pcm[160] =
+          {
+           -9510, -9510,  1799,  1799,  1799,  1799,  1799,  1799,  1799,
+            1799,  1799,  1799,  1799,  1799,  1799,  1799,  1799,     0,
+               0,     0,     0,     0,     0,     0,     0,     0,     0,
+               0,     0,     0,     0,     0,     0,     0,     0,     0,
+               0,     0,     0,     0,     0,     0,     0,     0,     0,
+            -256,   255,     0,     0,     0,     0,     0,     0,     0,
+               0,     0,     0,     0,     0,     0,     0,     0,     0,
+               0,     0,     0,     0,     0,     0,     0,     0,     0,
+               0,     0,     0,     0,     0,     0,     0,     0,     0,
+               0,     0,     0,     0,     0,     0,     0,     0,     0,
+               0,     0,     0,     0,     0,     0,     0,   128,     0,
+               0,     0,     0,     0,     0,     0,     0,     0,     0,
+               0,    32,     0,     0,     0,     0,     0,     0,     0,
+            4352,     4,     0,     0,     0,     0,     0,     0,     0,
+               0,     0,     0,     0,   148,     0,     0,     0,     0,
+            5632
+          };
+          opus_multistream_encode(enc, pcm, 160, data, 2460);
+          
+          $o0 = enc;
+          $o1 = $i1;
+            
+  - opus_multistream_encoder_ctl_22():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_SIGNAL(OPUS_SIGNAL_VOICE));
+          $o0 = enc;     
+# 45
+  - opus_multistream_encoder_ctl_23():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_PHASE_INVERSION_DISABLED(1));
+          $o0 = enc;
+
+  - opus_multistream_encoder_ctl_24():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_LSB_DEPTH(12));
+          $o0 = enc;
+# 47
+  - opus_multistream_encoder_ctl_25():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_PACKET_LOSS_PERC(41));
+          $o0 = enc;
+          
+  - opus_multistream_encoder_ctl_26():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_BITRATE(21425));
+          $o0 = enc;        
+# 49
+  - opus_multistream_encode_5():
+      inputs: ['OpusMSEncoder', 'Wrapper_data_0']
+      outputs: ['OpusMSEncoder', 'Wrapper_data_0']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          unsigned char *data = $i1->data; //data[2460];
+          
+          static const short pcm[40] =
+          {
+           10459, -6474, 10204, -6539, 11601, -6824, 13385, -7142, 13872,
+          -11553, 13670, -7725, 13463, -6887, 12482, -5580, 12600, -4964,
+           12480,  3254, 11741, -4210,  9741, -3155,  7558, -5468,  5431,
+           -1073,  3641, -1304,     0,    -1,   343,    26,     0,     0,
+               0,     0,  -256,   226
+          };
+          opus_multistream_encode(enc, pcm, 40, data, 2460);
+          
+          $o0 = enc;
+          $o1 = $i1;
+
+# extension for context byte string
+
+#OpusMSEncoder:
+  - opus_multistream_surround_encoder_create_ext():
+      inputs: []
+      outputs: ['OpusMSEncoder']
+      args: ['int', 'int', 'int', 'int']
+      exec: |
+          OpusMSEncoder *enc;
+          int err;
+          //unsigned char data[2460];
+          int streams;
+          int coupled_streams;
+          unsigned char mapping[1];
+      
+          enc = opus_multistream_surround_encoder_create($a0
+              , $a1, $a2, &streams,&coupled_streams, mapping
+              , $a3, &err);
+              
+          $o0 = enc;
+# 51
+  - opus_multistream_encoder_ctl_ext():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: ['int']
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, $a0);
+          $o0 = enc;     
+          
+
+  - opus_multistream_encode_ext_0():
+      inputs: ['OpusMSEncoder', 'Wrapper_data_0']
+      outputs: ['OpusMSEncoder', 'Wrapper_data_0']
+      args: ['int16_t[320]', 'int', 'int']
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          unsigned char *data = $i1->data; //data[2460];
+            
+          int16_t *pcm = $a0; //short pcm[320]
+          
+          opus_multistream_encode(enc, pcm, $a1, data, $a2);
+          
+          $o0 = enc;    
+          $o1 = $i1;
+# 53
+  - opus_multistream_encode_ext_1():
+      inputs: ['OpusMSEncoder', 'Wrapper_data_0']
+      outputs: ['OpusMSEncoder', 'Wrapper_data_0']
+      args: ['int16_t[160]', 'int', 'int']
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          unsigned char *data = $i1->data; //data[2460];
+          
+          int16_t *pcm = $a0; //short pcm[160]
+          
+          opus_multistream_encode(enc, pcm, $a1, data, $a2);
+          
+          $o0 = enc;
+          $o1 = $i1;
+
+  - opus_multistream_encode_ext_2():
+      inputs: ['OpusMSEncoder', 'Wrapper_data_0']
+      outputs: ['OpusMSEncoder', 'Wrapper_data_0']
+      args: ['int16_t[40]', 'int', 'int']
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          unsigned char *data = $i1->data; //data[2460];
+          
+          int16_t *pcm = $a0; //short pcm[40]
+          
+          opus_multistream_encode(enc, pcm, $a1, data, $a2);
+          
+          $o0 = enc;
+          $o1 = $i1;
+#TC-2
+#OpusMSEncoder:
+#55
+  - opus_multistream_surround_encoder_create_1():
+      inputs: []
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc;
+          int err;
+          //unsigned char data[627300];
+          unsigned char mapping[255] = 
+          {
+           0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16,
+           17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33,
+           34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
+           51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67,
+           68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84,
+           85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99,100,101,
+          102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,
+          119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,
+          136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,
+          153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,
+          170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,
+          187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,
+          204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,
+          221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,
+          238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254
+          };
+      
+          enc = opus_multistream_encoder_create(8000
+              , 255, 254, 1, mapping
+              , OPUS_APPLICATION_RESTRICTED_LOWDELAY, &err);
+              
+          $o0 = enc;
+          
+  - opus_multistream_encoder_ctl_27():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_PREDICTION_DISABLED(0));
+          $o0 = enc;
+#57    
+  - opus_multistream_encoder_ctl_28():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_FORCE_CHANNELS(2));
+          $o0 = enc;
+
+  - opus_multistream_encoder_ctl_29():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_COMPLEXITY(2));
+          $o0 = enc;
+#59
+  - opus_multistream_encoder_ctl_30():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_LSB_DEPTH(14));
+          $o0 = enc;
+
+  - opus_multistream_encoder_ctl_31():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_PACKET_LOSS_PERC(57));
+          $o0 = enc;
+#61  
+  - opus_multistream_encoder_ctl_32():
+      inputs: ['OpusMSEncoder']
+      outputs: ['OpusMSEncoder']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          opus_multistream_encoder_ctl(enc, OPUS_SET_BITRATE(3642675));
+          $o0 = enc;
+            
+  - opus_multistream_encode_6():
+      inputs: ['OpusMSEncoder', 'Wrapper_data_1']
+      outputs: ['OpusMSEncoder', 'Wrapper_data_1']
+      args: []
+      exec: |
+          OpusMSEncoder *enc = $i0;
+          unsigned char *data = $i1->data; //data[627300];
+          
+          static const short pcm[20*255] =
+          {
+           0
+          };
+          opus_multistream_encode(enc, pcm, 20, data, 627300);
+          
+          $o0 = enc;
+          $o1 = $i1;
+
+Wrapper_data_0: #wrapper for unsigned char data[2460]
+  name: Wrapper_data_0
+  type: struct
+  headers: ['gfuzz_opus.h']
+  methods:
+  #required: Constructor
+# 63
+  - Wrapper_data_0():
+      outputs: ['Wrapper_data_0']
+      exec: |
+          Wrapper_data_0 *wrapper = (Wrapper_data_0*)malloc(sizeof(Wrapper_data_0));
+          memset(wrapper, 0, sizeof(Wrapper_data_0));
+          $o0 = wrapper;
+          
+  #required: Desctructor
+  - ~Wrapper_data_0():
+      inputs: ['Wrapper_data_0']
+      exec: |
+          free($i0);
+
+Wrapper_data_1: #wrapper for unsigned char data[627300]
+  name: Wrapper_data_1
+  type: struct
+  headers: ['gfuzz_opus.h']
+  methods:
+  #required: Constructor
+# 63
+  - Wrapper_data_1():
+      outputs: ['Wrapper_data_1']
+      exec: |
+          Wrapper_data_1 *wrapper = (Wrapper_data_1*)malloc(sizeof(Wrapper_data_1));
+          memset(wrapper, 0, sizeof(Wrapper_data_1));
+          $o0 = wrapper;
+          
+  #required: Desctructor
+  - ~Wrapper_data_1():
+      inputs: ['Wrapper_data_1']
+      exec: |
+          free($i0);

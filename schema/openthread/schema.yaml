@@ -1,0 +1,207 @@
+enum_otMessagePriority:
+  type: enum
+  name: otMessagePriority
+  values:
+  - OT_MESSAGE_PRIORITY_LOW
+  - OT_MESSAGE_PRIORITY_NORMAL
+  - OT_MESSAGE_PRIORITY_HIGH
+
+otInstance:
+  name: otInstance
+  type: struct
+  headers: ['gfuzz_openthread.h']
+  methods:
+# 0
+# 1. (규칙 1, L62-73) driver_62_to_73
+  - driver_62_to_73:
+      outputs: ['otInstance']
+      exec: |
+          FuzzerPlatformInit();
+          $o0 = otInstanceInitSingle();
+
+# 1
+# 2. (규칙 1, L74) driver_74
+  - driver_74:
+      inputs: ['otInstance']
+      outputs: ['otInstance']
+      exec: |
+          const otPanId panId = 0xdead;
+          otLinkSetPanId($i0, panId);
+
+          $o0 = $i0;
+
+# 2
+# 3. (규칙 1, L75) driver_75
+  - driver_75:
+      inputs: ['otInstance']
+      outputs: ['otInstance']
+      args: ['bool']
+      exec: |
+          otIp6SetEnabled($i0, $a0);
+
+          $o0 = $i0;
+
+# 3
+# 4. (규칙 1, L76) driver_76
+  - driver_76:
+      inputs: ['otInstance']
+      outputs: ['otInstance']
+      args: ['bool']
+      exec: |
+          otThreadSetEnabled($i0, $a0);
+
+          $o0 = $i0;
+          
+# 4
+# 5. (규칙 1, L77) driver_77
+  - driver_77:
+      inputs: ['otInstance']
+      outputs: ['otInstance']
+      args: ['bool']
+      exec: |
+          otSrpServerSetEnabled($i0, $a0);
+
+          $o0 = $i0;
+
+# 5
+# 6. (규칙 1, L78) driver_78
+  - otThreadBecomeLeader():
+      inputs: ['otInstance']
+      outputs: ['otInstance']
+      exec: |
+          otThreadBecomeLeader($i0);
+
+          $o0 = $i0;
+
+# 6
+# 7. (규칙 1, L80) driver_80
+  - driver_80:
+      inputs: ['otInstance']
+      outputs: ['otInstance']
+      args: ['int']
+      exec: |
+          AdvanceTime($i0, $a0);
+          $o0 = $i0;
+
+# 7
+# 10. (규칙 1, L91) driver_91
+  - driver_91:
+      inputs: ['otInstance', 'otMessage']
+      outputs: ['otInstance', 'otMessage']
+      exec: |
+          if ($i1 != 0x0) {
+            otIp6Send($i0, $i1);
+          }
+
+          $o0 = $i0;
+          $o1 = $i1;
+
+# 8
+# 12. (규칙 1, L97) driver_97
+  - driver_97:
+      inputs: ['otInstance']
+      outputs: ['otInstance']
+      args: ['int']
+      exec: |
+          AdvanceTime($i0, $a0);
+          $o0 = $i0;
+
+# 9
+# 13. (규칙 1, L101-109) driver_101_to_109
+  - driver_101_to_109:
+      inputs: ['otInstance', 'otMessage']
+      outputs: ['otInstance', 'otMessage']
+      exec: |
+          if ($i1 != 0x0)
+            otMessageFree($i1);
+          if ($i0 != 0x0)
+            otInstanceFinalize($i0);
+            
+          $o0 = 0x0;
+          $o1 = 0x0;
+
+# 10
+# 14. (규칙 2, L103, otMessageFree) driver_103
+  - driver_103:
+      inputs: ['otInstance']
+      exec: |
+          otInstanceFinalize($i0);
+
+# 11
+# 17. (규칙 3, L106-109) driver_106_to_109
+  - driver_101_to_104:
+      inputs: ['otInstance']
+      exec: |
+          if ($i0 != 0x0)
+            otInstanceFinalize($i0);
+
+# 12
+# 15. (규칙 2, L108, otInstanceFinalize) driver_108
+  - driver_108:
+      inputs: ['otInstance']
+      exec: |
+          otInstanceFinalize($i0);
+
+### Message
+otMessage:
+  name: otMessage
+  type: struct
+  headers: ['gfuzz_openthread.h']
+  methods:
+# 13
+  - constructor_otMessage:
+      outputs: ['otMessage']
+      exec: |
+          $o0 = 0x0;
+
+# 14
+# 8. (규칙 1, L82-85) driver_82_to_85
+  - driver_82_to_85:
+      inputs: ['otInstance', 'otMessage']
+      outputs: ['otInstance', 'otMessage']
+      args: ['bool','otMessagePriority']
+      exec: |
+          if ($i1 == 0x0) {
+            otMessageSettings settings;
+            settings.mLinkSecurityEnabled = $a0;
+            settings.mPriority  = $a1;
+            $o1 = otIp6NewMessage($i0, &settings);
+            $o0 = $i0;
+          }
+          else {
+            $o0 = $i0;
+            $o1 = $i1;
+          }
+
+# 15
+# 9. (규칙 1, L88) driver_88
+  - driver_88:
+      inputs: ['otMessage']
+      outputs: ['otMessage']
+      args: ['char[1048576]', 'uint8_t']
+      exec: |
+          uint8_t *data = (uint8_t*)$a0;
+          uint8_t size = $a1 % MAX_BUFFER_SIZE;
+
+          otMessageAppend($i0, data, static_cast<uint16_t>(size));
+
+          $o0 = $i0;
+
+# 16
+# 11. (규칙 1, L93-95) driver_93_to_95
+  - driver_93_to_95:
+      inputs: ['otMessage']
+      outputs: ['otMessage']
+      exec: |
+          $i0 = nullptr;
+          FuzzerPlatformResetWasRequested();
+          
+          $o0 = $i0;
+
+# 17
+# 16. (규칙 3, L101-104) driver_101_to_104
+  - driver_101_to_104:
+      inputs: ['otMessage']
+      exec: |
+          if ($i0 != 0x0)
+            otMessageFree($i0);

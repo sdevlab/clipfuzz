@@ -1,0 +1,279 @@
+_cmsICCPROFILE: 
+  name: _cmsICCPROFILE
+  type: struct
+  headers: ['gfuzz_Little-CMS.h']
+  methods:
+# 0 (place-holder)
+  - ph_constructor:
+      outputs: ['_cmsICCPROFILE']
+      exec: |
+          $o0 = 0x0;
+
+#1. (규칙 1, L20) driver_20
+  - driver_20:
+      outputs: ['_cmsICCPROFILE']
+      args: ['uint8_t[1048576]', 'uint32_t']
+      exec: |
+          size_t size = $a1 % (MAX_BUFFER_SIZE+1);
+          $o0 = (_cmsICCPROFILE*)cmsOpenProfileFromMem($a0, size);
+
+#2. (규칙 1, L21-29) driver_21_to_29
+  - driver_21_to_29:
+      inputs: ['_cmsICCPROFILE', '_cmsICCPROFILE', 'Wrapper_cmsColorSpaceSignature']
+      outputs: ['_cmsICCPROFILE', '_cmsICCPROFILE', 'Wrapper_cmsColorSpaceSignature']
+      exec: |
+          if ($i1 != 0x0) { 
+            $o0 = $i0;
+            $o1 = $i1;
+            $o2 = $i2;
+            out_ref[0] = reinterpret_cast<void *>(_o0);
+            out_ref[1] = reinterpret_cast<void *>(_o1);
+            out_ref[2] = reinterpret_cast<void *>(_o2);
+            return;
+          }
+          
+          if (!$i0) { 
+            $o0 = $i0;
+            $o1 = $i1;
+            $o2 = $i2;
+            out_ref[0] = reinterpret_cast<void *>(_o0);
+            out_ref[1] = reinterpret_cast<void *>(_o1);
+            out_ref[2] = reinterpret_cast<void *>(_o2);
+            return;
+          }
+          $i1 = (_cmsICCPROFILE*)cmsCreate_sRGBProfile();
+          if (!$i1) {
+            cmsCloseProfile($i0);
+            
+            $o0 = $i0;
+            $o1 = $i1;
+            $o2 = $i2;
+            out_ref[0] = reinterpret_cast<void *>(_o0);
+            out_ref[1] = reinterpret_cast<void *>(_o1);
+            out_ref[2] = reinterpret_cast<void *>(_o2);
+            return;
+          }
+          cmsColorSpaceSignature srcCS = cmsGetColorSpace($i0);
+          
+          $o0 = $i0;
+          $o1 = $i1;
+          $i2->val = srcCS;
+          $o2 = $i2;
+
+#3. (규칙 1, L30) driver_30
+  - driver_30:
+      inputs: ['Wrapper_cmsColorSpaceSignature', 'Wrapper_cmsUInt32Number']
+      outputs: ['Wrapper_cmsColorSpaceSignature', 'Wrapper_cmsUInt32Number']
+      exec: |
+          cmsUInt32Number nSrcComponents = cmsChannelsOf($i0->val);
+          
+          $o0 = $i0;
+          $o1 = $i1;
+          $i1->val = nSrcComponents;
+
+#4. (규칙 1, L31-43) driver_31_to_43
+  - driver_31_to_43:
+      inputs: ['_cmsICCPROFILE', '_cmsICCPROFILE', 'Wrapper_cmsColorSpaceSignature', 'Wrapper_cmsUInt32Number', 'Wrapper_cmsUInt32Number', '_cmsTRANSFORM']
+      outputs: ['_cmsICCPROFILE', '_cmsICCPROFILE', 'Wrapper_cmsColorSpaceSignature', 'Wrapper_cmsUInt32Number', 'Wrapper_cmsUInt32Number', '_cmsTRANSFORM']
+      exec: |
+          if ($i5 != 0x0) return;
+          cmsHPROFILE srcProfile = $i0;
+          cmsHPROFILE dstProfile = $i1;
+          cmsColorSpaceSignature srcCS = $i2->val;
+          cmsUInt32Number nSrcComponents = $i3->val;
+          
+          cmsUInt32Number srcFormat;
+          if (srcCS == cmsSigLabData) { 
+            srcFormat =
+                COLORSPACE_SH(PT_Lab) | CHANNELS_SH(nSrcComponents) | BYTES_SH(0);
+          } else {
+            srcFormat =
+                COLORSPACE_SH(PT_ANY) | CHANNELS_SH(nSrcComponents) | BYTES_SH(1);
+          }
+        
+          cmsUInt32Number intent = 0;
+          cmsUInt32Number flags = 0;
+          cmsHTRANSFORM hTransform = cmsCreateTransform(
+              srcProfile, srcFormat, dstProfile, TYPE_BGR_8, intent, flags);
+              
+          $i2->val = srcCS;
+          $i3->val = nSrcComponents;
+          $i4->val = srcFormat;
+          $o0 = $i0;
+          $o1 = $i1;
+          $o2 = $i2;
+          $o3 = $i3;
+          $o4 = $i4;
+          $o5 = (_cmsTRANSFORM*)hTransform;
+          
+#5. (규칙 1, L44) driver_44
+  - driver_44:
+      inputs: ['_cmsICCPROFILE']
+      exec: |
+          cmsCloseProfile($i0);
+          
+#6. (규칙 1, L45) driver_45
+  - driver_45:
+      inputs: ['_cmsICCPROFILE']
+      exec: |
+          cmsCloseProfile($i0);
+          
+#7. (규칙 1, L46-58) driver_46_to_58
+  - driver_46_to_58:
+      inputs: ['_cmsTRANSFORM', 'Wrapper_cmsUInt32Number', 'Wrapper_cmsUInt32Number']
+      outputs: ['_cmsTRANSFORM', 'Wrapper_cmsUInt32Number', 'Wrapper_cmsUInt32Number']
+      args: ['int', 'int']
+      exec: |
+          cmsHTRANSFORM hTransform = $i0;
+          cmsUInt32Number nSrcComponents = $i1->val;
+          cmsUInt32Number srcFormat = $i2->val;
+          
+          if (!hTransform) {
+            $o0 = $i0;
+            out_ref[0] = reinterpret_cast<void *>(_o0);
+            $o1 = $i1;
+            out_ref[1] = reinterpret_cast<void *>(_o1);
+            $o2 = $i2;
+            out_ref[2] = reinterpret_cast<void *>(_o2);
+            return;
+          }
+          
+          uint8_t output[4];
+          if (T_BYTES(srcFormat) == 0) {  // 0 means double
+            double input[nSrcComponents];
+            for (uint32_t i = 0; i < nSrcComponents; i++) input[i] = 0.5f;
+            cmsDoTransform(hTransform, input, output, $a0);
+          } else {
+            uint8_t input[nSrcComponents];
+            for (uint32_t i = 0; i < nSrcComponents; i++) input[i] = 128;
+            cmsDoTransform(hTransform, input, output, $a1);
+          }
+
+          $i1->val = nSrcComponents;
+          $o0 = (_cmsTRANSFORM *)hTransform;
+          $o1 = $i1;
+          $o2 = $i2;
+
+# 8
+#10. (규칙 3, L24-27) driver_24_to_27
+  - driver_24_to_27:
+      inputs: ['_cmsICCPROFILE', '_cmsICCPROFILE']
+      outputs: ['_cmsICCPROFILE', '_cmsICCPROFILE']
+      exec: |
+          if (!$i1) {
+            cmsCloseProfile($i0);
+          }
+          $o0 = $i0;
+          $o1 = $i1;
+# 9 (place-holder)
+  - ph_destructor:
+      inputs: ['_cmsICCPROFILE']
+      exec: |
+          // placeholder
+          
+_cmsTRANSFORM:
+  name: _cmsTRANSFORM
+  type: struct
+  headers: ['gfuzz_Little-CMS.h']
+  methods:
+# 10 (place-holder)
+  - ph_constructor:
+      outputs: ['_cmsTRANSFORM']
+      exec: |
+          $o0 = 0x0;
+
+# 11 (place-holder)
+  - ph_destructor:
+      inputs: ['_cmsTRANSFORM']
+      exec: |
+          // placeholder
+          
+# 12
+#8. (규칙 2, L52) driver_52
+  - driver_52:
+      inputs: ['_cmsTRANSFORM']
+      outputs: ['_cmsTRANSFORM']
+      args: ['uint8_t[4]', 'double[4]', 'int']
+      exec: |
+            cmsDoTransform($i0, $a0, $a1, $a2);
+            $o0 = $i0;
+
+# 13
+#9. *(규칙 2, L56) driver_56
+  - driver_56:
+      inputs: ['_cmsTRANSFORM']
+      outputs: ['_cmsTRANSFORM']
+      args: ['uint8_t[4]', 'uint8_t[4]', 'int']
+      exec: |
+            cmsDoTransform($i0, $a0, $a1, $a2);
+            $o0 = $i0;
+
+# 14        
+#11. (규칙 3, L49-57) driver_49_to_57
+  - driver_49_to_57:
+      inputs: ['_cmsTRANSFORM', 'Wrapper_cmsUInt32Number', 'Wrapper_cmsUInt32Number']
+      outputs: ['_cmsTRANSFORM', 'Wrapper_cmsUInt32Number', 'Wrapper_cmsUInt32Number']
+      args: ['uint8_t[4]', 'int', 'int']
+      exec: |
+          cmsHTRANSFORM hTransform = $i0;
+          cmsUInt32Number nSrcComponents = $i1->val;
+          cmsUInt32Number srcFormat = $i2->val;
+          
+          if (T_BYTES(srcFormat) == 0) {  // 0 means double
+            double input[nSrcComponents];
+            for (uint32_t i = 0; i < nSrcComponents; i++) input[i] = 0.5f;
+            cmsDoTransform(hTransform, input, $a0, $a1);
+          } else {
+            uint8_t input[nSrcComponents];
+            for (uint32_t i = 0; i < nSrcComponents; i++) input[i] = 128;
+            cmsDoTransform(hTransform, input, $a0, $a2);
+          }
+
+          $i1->val = nSrcComponents;
+          $o0 = (_cmsTRANSFORM *)hTransform;
+          $o1 = $i1;
+          $o2 = $i2;
+            
+
+
+Wrapper_cmsColorSpaceSignature:
+  name: Wrapper_cmsColorSpaceSignature
+  type: struct
+  headers: ['gfuzz_Little-CMS.h']
+  methods:
+# 15
+  #required: Constructor
+  - Wrapper_cmsColorSpaceSignature:
+      outputs: ['Wrapper_cmsColorSpaceSignature']
+      exec: |
+          Wrapper_cmsColorSpaceSignature *wrapper = (Wrapper_cmsColorSpaceSignature*)malloc(sizeof(Wrapper_cmsColorSpaceSignature));
+          memset(wrapper, 0, sizeof(Wrapper_cmsColorSpaceSignature));
+          $o0 = wrapper;
+
+# 16
+  #required: Desctructor
+  - ~Wrapper_cmsColorSpaceSignature:
+      inputs: ['Wrapper_cmsColorSpaceSignature']
+      exec: |
+          free($i0);
+          
+Wrapper_cmsUInt32Number:
+  name: Wrapper_cmsUInt32Number
+  type: struct
+  headers: ['gfuzz_Little-CMS.h']
+  methods:
+# 17
+  #required: Constructor
+  - Wrapper_cmsUInt32Number:
+      outputs: ['Wrapper_cmsUInt32Number']
+      exec: |
+          Wrapper_cmsUInt32Number *wrapper = (Wrapper_cmsUInt32Number*)malloc(sizeof(Wrapper_cmsUInt32Number));
+          memset(wrapper, 0, sizeof(Wrapper_cmsUInt32Number));
+          $o0 = wrapper;
+# 18
+  #required: Desctructor
+  - ~Wrapper_cmsUInt32Number:
+      inputs: ['Wrapper_cmsUInt32Number']
+      exec: |
+          free($i0);
+          $i0 = NULL;

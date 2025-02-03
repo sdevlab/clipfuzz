@@ -1,0 +1,38 @@
+syntax = "proto2";
+  
+message FUZZING_BYTES {
+  required PRIMTIVE_POOL_INIT_VALUES pool_init_values = 1;
+  repeated APIB_CALL api_block_call_seq = 2;
+}
+
+message APIB_CALL {
+  required uint32 api_block_call_num = 1;
+  required APIB_CALL_INPUT api_block_call_input = 2;
+}
+
+message PRIMTIVE_POOL_INIT_VALUES {
+  repeated BUF_UINT8_T_P buf_uint8_t_p = 1;
+  repeated BUF_UNSIGNED_CHAR_P buf_unsigned_char_p = 2;
+}
+
+message APIB_CALL_INPUT {
+  required uint32 in_idx_X509_p_0 = 1;
+  required uint32 out_idx_X509_p_0 = 2;
+  required uint32 in_idx__size_t_0 = 3;
+  required uint32 out_idx__size_t_0 = 4;
+  required uint32 in_idx_buf_uint8_t_p_0 = 5;
+  required uint32 in_idx_buf_unsigned_char_p_0 = 6;
+  required uint32 in_idx_buf_unsigned_char_p_1 = 7;
+  required uint32 out_idx_buf_unsigned_char_p_0 = 8;
+  required uint32 out_idx_buf_unsigned_char_p_1 = 9;
+  required uint32 in_idx_BIO_p_0 = 10;
+  required uint32 out_idx_BIO_p_0 = 11;
+}
+
+message BUF_UINT8_T_P {
+  required bytes val = 1;
+}
+
+message BUF_UNSIGNED_CHAR_P {
+  required bytes val = 1;
+}

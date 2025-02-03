@@ -1,0 +1,83 @@
+#!/bin/bash
+
+CFLAGS="${CFLAGS} -fprofile-instr-generate -fcoverage-mapping"
+CXXFLAGS="${CXXFLAGS} -fprofile-instr-generate -fcoverage-mapping"
+
+#
+#  Copyright (c) 2021, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+set -euxo pipefail
+
+(
+    mkdir build_cov
+    cd build_cov || exit
+
+    cmake -GNinja \
+        -DCMAKE_C_FLAGS="${CFLAGS}" \
+        -DCMAKE_CXX_FLAGS="${CXXFLAGS}" \
+        -DOT_BUILD_EXECUTABLES=OFF \
+        -DOT_FUZZ_TARGETS=ON \
+        -DOT_MTD=OFF \
+        -DOT_PLATFORM=external \
+        -DOT_RCP=OFF \
+        -DOT_BORDER_AGENT=ON \
+        -DOT_BORDER_ROUTER=ON \
+        -DOT_CHANNEL_MANAGER=ON \
+        -DOT_CHANNEL_MONITOR=ON \
+        -DOT_CHILD_SUPERVISION=ON \
+        -DOT_COAP=ON \
+        -DOT_COAPS=ON \
+        -DOT_COAP_BLOCK=ON \
+        -DOT_COAP_OBSERVE=ON \
+        -DOT_COMMISSIONER=ON \
+        -DOT_DATASET_UPDATER=ON \
+        -DOT_DHCP6_CLIENT=ON \
+        -DOT_DHCP6_SERVER=ON \
+        -DOT_DNS_CLIENT=ON \
+        -DOT_ECDSA=ON \
+        -DOT_HISTORY_TRACKER=ON \
+        -DOT_IP6_FRAGM=ON \
+        -DOT_JAM_DETECTION=ON \
+        -DOT_JOINER=ON \
+        -DOT_LINK_RAW=ON \
+        -DOT_LOG_OUTPUT=APP \
+        -DOT_MAC_FILTER=ON \
+        -DOT_MTD_NETDIAG=ON \
+        -DOT_NETDATA_PUBLISHER=ON \
+        -DOT_PING_SENDER=ON \
+        -DOT_SERVICE=ON \
+        -DOT_SLAAC=ON \
+        -DOT_SNTP_CLIENT=ON \
+        -DOT_SRP_CLIENT=ON \
+        -DOT_SRP_SERVER=ON \
+        -DOT_THREAD_VERSION=1.3 \
+        -DOT_UPTIME=ON \
+	-DOT_BORDER_ROUTING=ON \
+        ..
+    ninja || true
+)
