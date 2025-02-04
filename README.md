@@ -1,8 +1,8 @@
-# dyfuzz
+# ClipFuzz
 
 ## Usage
 ```
-git clone https://github.com/sdevlab/dyfuzz.git --recursive
+git clone https://github.com/sdevlab/clipfuzz.git --recursive
 cd dyfuzz
 python3 helper.py --help
 ```
