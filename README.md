@@ -42,5 +42,5 @@ There are more examples in ```./example```.
    1) Original libprotobuf-mutator
    2) Multiple clone
    3) Multiple clone + 'Mutate' by 80%
- - Check current version: ```./dyfuzz/mutation_operator/convert_mutation_rool.sh --check```
- - Select specific version: ```./dyfuzz/mutation_operator/convert_mutation_rool.sh [1,3]```
+ - Check current version: ```./clipfuzz/mutation_operator/convert_mutation_rool.sh --check```
+ - Select specific version: ```./clipfuzz/mutation_operator/convert_mutation_rool.sh [1,3]```
