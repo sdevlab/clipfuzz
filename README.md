@@ -3,7 +3,7 @@
 ## Usage
 ```
 git clone https://github.com/sdevlab/clipfuzz.git --recursive
-cd dyfuzz
+cd clipfuzz
 python3 helper.py --help
 ```
 
